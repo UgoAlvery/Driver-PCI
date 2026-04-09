@@ -1,11 +1,8 @@
 obj-m += edu.o
-
-edu-objs := main.o edu_pci.o edu_mmio.o edu_char.o
-
-KDIR := /lib/modules/$(shell uname -r)/build
+edu-objs := main.o edu_pci.o edu_char.o edu_mmio.o
 
 all:
-	make -C $(KDIR) M=$(PWD) modules
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 clean:
-	make -C $(KDIR) M=$(PWD) clean
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean

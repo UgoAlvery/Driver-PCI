@@ -1,21 +1,20 @@
-#include <linux/delay.h>
+#include <linux/io.h>
+#include <linux/types.h>
+ 
+#include "edu_mmio.h"
 
-static void __iomem *mmio_base;
-
-void edu_mmio_set_base(void __iomem *base)
+void edu_mmio_write(void __iomem *base, uint32_t val)
 {
-    mmio_base = base;
+    iowrite32(val, base + REG_FACTORIAL);
 }
 
-void edu_mmio_write(uint32_t val)
+uint32_t edu_mmio_read_result(void __iomem *base)
 {
-    iowrite32(val, mmio_base + REG_FACTORIAL);
+    return ioread32(base + REG_FACTORIAL);
 }
 
-uint32_t edu_mmio_read_result(void)
+void edu_mmio_ack_irq(void __iomem *base)
 {
-    while (ioread32(mmio_base + REG_STATUS) & 0x1)
-        cpu_relax();
-
-    return ioread32(mmio_base + REG_FACTORIAL);
+    uint32_t status = ioread32(base + REG_IRQ_STATUS);
+    iowrite32(status, base + REG_IRQ_ACK);
 }
