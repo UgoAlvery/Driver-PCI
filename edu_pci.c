@@ -8,9 +8,9 @@
 #include "edu_mmio.h"
 #include "edu_char.h"
 
-#define DEVICE_NAME    "edu-fact"
-#define EDU_VENDOR_ID  0x1234
-#define EDU_DEVICE_ID  0x11e8
+#define DEVICE_NAME "edu-fact"
+#define EDU_VENDOR_ID 0x1234
+#define EDU_DEVICE_ID 0x11e8
 
 /* 
  * Gestionnaire d'interruption : appelé quand le device a fini son calcul.
@@ -66,8 +66,8 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_release;
 	}
 
-	ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED,
-			  DEVICE_NAME, edu);
+	ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED, DEVICE_NAME,
+			  edu);
 	if (ret) {
 		dev_err(&pdev->dev, "request_irq() failed\n");
 		goto err_iounmap;
@@ -101,7 +101,6 @@ err_kfree:
  */
 static void edu_remove(struct pci_dev *pdev)
 {
-	/* Retrieve the per-device context saved in probe */
 	struct edu_dev *edu = pci_get_drvdata(pdev);
 
 	edu_char_cleanup(edu);
@@ -115,17 +114,16 @@ static void edu_remove(struct pci_dev *pdev)
 }
 
 /* Table des devices PCI supportés par ce driver */
-static const struct pci_device_id edu_ids[] = {
-	{ PCI_DEVICE(EDU_VENDOR_ID, EDU_DEVICE_ID) },
-	{ 0 }
-};
+static const struct pci_device_id edu_ids[] = { { PCI_DEVICE(EDU_VENDOR_ID,
+							     EDU_DEVICE_ID) },
+						{ 0 } };
 MODULE_DEVICE_TABLE(pci, edu_ids);
 
 static struct pci_driver edu_driver = {
-	.name     = DEVICE_NAME,
+	.name = DEVICE_NAME,
 	.id_table = edu_ids,
-	.probe    = edu_probe,
-	.remove   = edu_remove,
+	.probe = edu_probe,
+	.remove = edu_remove,
 };
 
 /* Initialisation du driver PCI */

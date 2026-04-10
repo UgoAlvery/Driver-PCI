@@ -9,4 +9,4 @@ void edu_char_global_exit(void);
 int edu_char_init(struct edu_dev *edu);
 void edu_char_cleanup(struct edu_dev *edu);
 
-#endif /* EDU_CHAR_H */
+#endif

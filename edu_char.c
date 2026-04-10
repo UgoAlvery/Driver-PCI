@@ -9,9 +9,9 @@
 
 #define DEVICE_NAME "edu-fact"
 
-static dev_t          dev_base;
-static struct class  *edu_class;
-static int            next_minor;
+static dev_t dev_base;
+static struct class *edu_class;
+static int next_minor;
 
 /*
  * Ouverture du device (/dev/edu-factX)
@@ -19,19 +19,20 @@ static int            next_minor;
  */
 static int edu_open(struct inode *inode, struct file *file)
 {
-    unsigned int mj = imajor(inode);
-    unsigned int mn = iminor(inode);
-    struct edu_dev *edu;
+	unsigned int mj = imajor(inode);
+	unsigned int mn = iminor(inode);
+	struct edu_dev *edu;
 
-    edu = container_of(inode->i_cdev, struct edu_dev, cdev);
-    if (inode->i_cdev != &edu->cdev) {
-        pr_warn("edu_open: internal error (major=%d minor=%d)\n", mj, mn);
-        return -ENODEV;
-    }
+	edu = container_of(inode->i_cdev, struct edu_dev, cdev);
+	if (inode->i_cdev != &edu->cdev) {
+		pr_warn("edu_open: internal error (major=%d minor=%d)\n", mj,
+			mn);
+		return -ENODEV;
+	}
 
-    file->private_data = edu;
-    pr_info("edu-fact%d opened\n", mn);
-    return 0;
+	file->private_data = edu;
+	pr_info("edu-fact%d opened\n", mn);
+	return 0;
 }
 
 /*
@@ -70,8 +71,8 @@ static ssize_t edu_write(struct file *file, const char __user *buf,
 /*
  * Lecture : on renvoie le dernier résultat calculé à l'utilisateur.
  */
-static ssize_t edu_read(struct file *file, char __user *buf,
-			size_t count, loff_t *ppos)
+static ssize_t edu_read(struct file *file, char __user *buf, size_t count,
+			loff_t *ppos)
 {
 	struct edu_dev *edu = file->private_data;
 	char kbuf[32];
@@ -90,10 +91,10 @@ static ssize_t edu_read(struct file *file, char __user *buf,
 }
 
 static const struct file_operations edu_fops = {
-	.owner   = THIS_MODULE,
-	.open    = edu_open,
-	.read    = edu_read,
-	.write   = edu_write,
+	.owner = THIS_MODULE,
+	.open = edu_open,
+	.read = edu_read,
+	.write = edu_write,
 };
 
 /*
@@ -106,7 +107,6 @@ int edu_char_init(struct edu_dev *edu)
 	int minor;
 	struct device *dev;
 
-	/* Assign next available minor number */
 	minor = next_minor++;
 	edu->dev_num = MKDEV(MAJOR(dev_base), minor);
 
@@ -119,8 +119,8 @@ int edu_char_init(struct edu_dev *edu)
 		return ret;
 	}
 
-	dev = device_create(edu_class, &edu->pdev->dev,
-			    edu->dev_num, edu, DEVICE_NAME "%d", minor);
+	dev = device_create(edu_class, &edu->pdev->dev, edu->dev_num, edu,
+			    DEVICE_NAME "%d", minor);
 	if (IS_ERR(dev)) {
 		ret = PTR_ERR(dev);
 		pr_warn("edu_char_init: device_create() failed\n");

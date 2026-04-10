@@ -3,7 +3,6 @@
 #include "edu_pci.h"
 #include "edu_char.h"
 
-
 /*
  * Fonction appelée au chargement du module.
  * On initialise d'abord la partie caractère, puis la partie PCI.
