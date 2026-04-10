@@ -9,15 +9,14 @@
 
 #define DEVICE_NAME "edu-fact"
 
-static dev_t          dev_base;
-static struct class  *edu_class;
+static dev_t dev_base;
+static struct class *edu_class;
 static DEFINE_IDA(edu_minor_ida);
 
 /* open: bind the per-device context to the file */
 static int edu_open(struct inode *inode, struct file *file)
 {
-	struct edu_dev *edu = container_of(inode->i_cdev,
-					   struct edu_dev, cdev);
+	struct edu_dev *edu = container_of(inode->i_cdev, struct edu_dev, cdev);
 	file->private_data = edu;
 	return 0;
 }
@@ -54,8 +53,8 @@ static ssize_t edu_write(struct file *file, const char __user *buf,
 }
 
 /* read: return the result of the last computation */
-static ssize_t edu_read(struct file *file, char __user *buf,
-			size_t count, loff_t *ppos)
+static ssize_t edu_read(struct file *file, char __user *buf, size_t count,
+			loff_t *ppos)
 {
 	struct edu_dev *edu = file->private_data;
 	char kbuf[32];
@@ -74,10 +73,10 @@ static ssize_t edu_read(struct file *file, char __user *buf,
 }
 
 static const struct file_operations edu_fops = {
-	.owner   = THIS_MODULE,
-	.open    = edu_open,
-	.read    = edu_read,
-	.write   = edu_write,
+	.owner = THIS_MODULE,
+	.open = edu_open,
+	.read = edu_read,
+	.write = edu_write,
 };
 
 int edu_char_init(struct edu_dev *edu)
@@ -100,8 +99,8 @@ int edu_char_init(struct edu_dev *edu)
 	if (ret)
 		goto err_ida;
 
-	dev = device_create(edu_class, &edu->pdev->dev,
-			    edu->dev_num, edu, DEVICE_NAME "%d", minor);
+	dev = device_create(edu_class, &edu->pdev->dev, edu->dev_num, edu,
+			    DEVICE_NAME "%d", minor);
 	if (IS_ERR(dev)) {
 		ret = PTR_ERR(dev);
 		goto err_cdev;
