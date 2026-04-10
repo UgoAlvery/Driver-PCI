@@ -31,3 +31,5 @@ module_init(edu_init);
 module_exit(edu_exit);
 
 MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Educational PCI factorial driver");
+MODULE_AUTHOR("UGO et ARTHUR");

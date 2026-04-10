@@ -13,6 +13,7 @@ static dev_t          dev_base;
 static struct class  *edu_class;
 static DEFINE_IDA(edu_minor_ida);
 
+/* open: bind the per-device context to the file */
 static int edu_open(struct inode *inode, struct file *file)
 {
 	struct edu_dev *edu = container_of(inode->i_cdev,
@@ -36,15 +37,15 @@ static ssize_t edu_write(struct file *file, const char __user *buf,
 		return -EFAULT;
 
 	kbuf[count] = '\0';
-
 	if (kstrtol(kbuf, 10, &val))
 		return -EINVAL;
 
-	/* Submit value and wait for IRQ completion */
-	edu->irq_done = false;
+	/* Prepare wait, then trigger computation */
+	atomic_set(&edu->irq_done, 0);
 	edu_mmio_write(edu->mmio_base, (uint32_t)val);
 
-	if (wait_event_interruptible(edu->wq, edu->irq_done))
+	/* Wait for IRQ handler to signal completion */
+	if (wait_event_interruptible(edu->wq, atomic_read(&edu->irq_done)))
 		return -ERESTARTSYS;
 
 	edu->last_result = edu_mmio_read_result(edu->mmio_base);
@@ -52,6 +53,7 @@ static ssize_t edu_write(struct file *file, const char __user *buf,
 	return count;
 }
 
+/* read: return the result of the last computation */
 static ssize_t edu_read(struct file *file, char __user *buf,
 			size_t count, loff_t *ppos)
 {
@@ -123,6 +125,10 @@ void edu_char_cleanup(struct edu_dev *edu)
 	ida_free(&edu_minor_ida, minor);
 }
 
+/*
+ * edu_char_global_init / edu_char_global_exit:
+ * called once at module load to allocate the major number and class.
+ */
 int edu_char_global_init(void)
 {
 	int ret;

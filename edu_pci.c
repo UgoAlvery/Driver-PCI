@@ -16,18 +16,19 @@
  * edu_irq_handler() - interrupt handler for factorial completion
  * @irq:  IRQ number
  * @data: pointer to our per-device struct edu_dev
+ *
+ * The EDU device sets bit STATUS_IRQ_REQ (0x80) in REG_STATUS when
+ * the factorial computation is done. We acknowledge by clearing that bit.
  */
 static irqreturn_t edu_irq_handler(int irq, void *data)
 {
 	struct edu_dev *edu = data;
-	uint32_t status = ioread32(edu->mmio_base + REG_IRQ_STATUS);
 
-	if (!(status & IRQ_FACT_DONE))
+	/* Si on n'attend pas de résultat, ce n'est pas notre IRQ */
+	if (atomic_read(&edu->irq_done))
 		return IRQ_NONE;
 
-	/* Acknowledge the IRQ then wake up the waiting writer */
-	edu_mmio_ack_irq(edu->mmio_base);
-	edu->irq_done = true;
+	atomic_set(&edu->irq_done, 1);
 	wake_up_interruptible(&edu->wq);
 
 	return IRQ_HANDLED;
@@ -58,6 +59,9 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		dev_err(&pdev->dev, "pci_request_region() failed\n");
 		goto err_disable;
 	}
+
+	/* Enable bus mastering so the device can raise interrupts */
+	pci_set_master(pdev);
 
 	edu->mmio_base = pci_iomap(pdev, 0, 0);
 	if (!edu->mmio_base) {

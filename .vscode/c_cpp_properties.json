@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Linux Kernel",
+            "includePath": [
+                "/usr/src/linux-headers-6.18.16-0-virt/include",
+                "/usr/src/linux-headers-6.18.16-0-virt/arch/x86/include",
+                "/usr/src/linux-headers-6.18.16-0-virt/arch/x86/include/generated",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "__KERNEL__",
+                "MODULE"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
