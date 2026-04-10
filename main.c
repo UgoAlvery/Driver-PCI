@@ -3,11 +3,15 @@
 #include "edu_pci.h"
 #include "edu_char.h"
 
+
+/*
+ * Fonction appelée au chargement du module.
+ * On initialise d'abord la partie caractère, puis la partie PCI.
+ */
 static int __init edu_init(void)
 {
 	int ret;
 
-	/* Allocate major number and device class once for all instances */
 	ret = edu_char_global_init();
 	if (ret)
 		return ret;
@@ -21,6 +25,10 @@ static int __init edu_init(void)
 	return 0;
 }
 
+/*
+ * Fonction appelée au déchargement du module.
+ * On fait le nettoyage dans l'ordre inverse.
+ */
 static void __exit edu_exit(void)
 {
 	edu_pci_exit();

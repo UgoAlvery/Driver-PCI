@@ -8,39 +8,36 @@
 #include "edu_mmio.h"
 #include "edu_char.h"
 
-#define DEVICE_NAME "edu-fact"
-#define EDU_VENDOR_ID 0x1234
-#define EDU_DEVICE_ID 0x11e8
+#define DEVICE_NAME    "edu-fact"
+#define EDU_VENDOR_ID  0x1234
+#define EDU_DEVICE_ID  0x11e8
 
-/**
- * edu_irq_handler() - interrupt handler for factorial completion
- * @irq:  IRQ number
- * @data: pointer to our per-device struct edu_dev
- *
- * The EDU device sets bit STATUS_IRQ_REQ (0x80) in REG_STATUS when
- * the factorial computation is done. We acknowledge by clearing that bit.
+/* 
+ * Gestionnaire d'interruption : appelé quand le device a fini son calcul.
  */
 static irqreturn_t edu_irq_handler(int irq, void *data)
 {
 	struct edu_dev *edu = data;
 
-	/* Si on n'attend pas de résultat, ce n'est pas notre IRQ */
-	if (atomic_read(&edu->irq_done))
+	if (edu->irq_done)
 		return IRQ_NONE;
 
-	atomic_set(&edu->irq_done, 1);
+	edu->irq_done = 1;
 	wake_up_interruptible(&edu->wq);
 
 	return IRQ_HANDLED;
 }
 
+/*
+ * Fonction appelée quand le device PCI est détecté.
+ * On initialise tout ce qui concerne le matériel.
+ */
 static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	struct edu_dev *edu;
 	int ret;
 
-	/* Allocate per-device context */
-	edu = devm_kzalloc(&pdev->dev, sizeof(*edu), GFP_KERNEL);
+	edu = kzalloc(sizeof(*edu), GFP_KERNEL);
 	if (!edu)
 		return -ENOMEM;
 
@@ -51,7 +48,7 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	ret = pci_enable_device(pdev);
 	if (ret) {
 		dev_err(&pdev->dev, "pci_enable_device() failed\n");
-		return ret;
+		goto err_kfree;
 	}
 
 	ret = pci_request_region(pdev, 0, DEVICE_NAME);
@@ -60,7 +57,6 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_disable;
 	}
 
-	/* Enable bus mastering so the device can raise interrupts */
 	pci_set_master(pdev);
 
 	edu->mmio_base = pci_iomap(pdev, 0, 0);
@@ -70,9 +66,8 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_release;
 	}
 
-	/* Register IRQ handler */
-	ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED, DEVICE_NAME,
-			  edu);
+	ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED,
+			  DEVICE_NAME, edu);
 	if (ret) {
 		dev_err(&pdev->dev, "request_irq() failed\n");
 		goto err_iounmap;
@@ -95,9 +90,15 @@ err_release:
 	pci_release_region(pdev, 0);
 err_disable:
 	pci_disable_device(pdev);
+err_kfree:
+	kfree(edu);
 	return ret;
 }
 
+/*
+ * Fonction appelée quand on retire le device (ou qu'on décharge le module).
+ * On nettoie tout proprement.
+ */
 static void edu_remove(struct pci_dev *pdev)
 {
 	/* Retrieve the per-device context saved in probe */
@@ -108,27 +109,32 @@ static void edu_remove(struct pci_dev *pdev)
 	pci_iounmap(pdev, edu->mmio_base);
 	pci_release_region(pdev, 0);
 	pci_disable_device(pdev);
+	kfree(edu);
 
 	dev_info(&pdev->dev, "edu driver removed\n");
 }
 
-static const struct pci_device_id edu_ids[] = { { PCI_DEVICE(EDU_VENDOR_ID,
-							     EDU_DEVICE_ID) },
-						{ 0 } };
+/* Table des devices PCI supportés par ce driver */
+static const struct pci_device_id edu_ids[] = {
+	{ PCI_DEVICE(EDU_VENDOR_ID, EDU_DEVICE_ID) },
+	{ 0 }
+};
 MODULE_DEVICE_TABLE(pci, edu_ids);
 
 static struct pci_driver edu_driver = {
-	.name = DEVICE_NAME,
+	.name     = DEVICE_NAME,
 	.id_table = edu_ids,
-	.probe = edu_probe,
-	.remove = edu_remove,
+	.probe    = edu_probe,
+	.remove   = edu_remove,
 };
 
+/* Initialisation du driver PCI */
 int edu_pci_init(void)
 {
 	return pci_register_driver(&edu_driver);
 }
 
+/* Nettoyage du driver PCI */
 void edu_pci_exit(void)
 {
 	pci_unregister_driver(&edu_driver);

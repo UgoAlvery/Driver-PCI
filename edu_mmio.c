@@ -3,21 +3,16 @@
 
 #include "edu_mmio.h"
 
-/**
- * edu_mmio_write() - trigger a factorial computation
- * @base: ioremapped BAR0 base address
- * @val:  value to compute the factorial of
+/* 
+ * On écrit la valeur dans le registre du device pour lancer le calcul de factorielle.
  */
 void edu_mmio_write(void __iomem *base, uint32_t val)
 {
 	iowrite32(val, base + REG_FACTORIAL);
 }
 
-/**
- * edu_mmio_read_result() - read the factorial result register
- * @base: ioremapped BAR0 base address
- *
- * Should only be called once the device signals completion via IRQ.
+/*
+ * On lit le résultat du calcul une fois que l'interruption nous a signalé que c'est fini.
  */
 uint32_t edu_mmio_read_result(void __iomem *base)
 {
