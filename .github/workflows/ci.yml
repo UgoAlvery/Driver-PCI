@@ -31,11 +31,17 @@ jobs:
         run: |
           make 2>&1 | tee build.log
           # `make` seul n'active pas -Werror ; on vérifie donc nous-mêmes
-          # qu'aucune ligne "warning:" n'est apparue. Un warning kernel
-          # aujourd'hui est souvent une ABI qui casse ou un bug latent
-          # demain.
-          if grep -q "warning:" build.log; then
-            echo "::error::compiler warnings found, see log above"
+          # qu'aucun VRAI warning de compilation n'est apparu. On ne
+          # cherche PAS la simple sous-chaîne "warning:" : kbuild émet des
+          # notices génériques qui la contiennent aussi (ex: "warning: the
+          # compiler differs from the one used to build the kernel", une
+          # simple comparaison de version de compilateur, sans rapport
+          # avec notre code). On cible donc précisément le format des
+          # diagnostics GCC liés à une ligne de code source :
+          # "fichier.c:ligne:colonne: warning: message".
+          if grep -qE '\.[ch]:[0-9]+:[0-9]+: warning:' build.log; then
+            echo "::error::compiler warnings found in source files, see log above"
+            grep -E '\.[ch]:[0-9]+:[0-9]+: warning:' build.log
             exit 1
           fi
 
