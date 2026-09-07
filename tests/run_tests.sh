@@ -26,8 +26,8 @@ set -uo pipefail
 SSH_HOST="${SSH_HOST:-localhost}"
 SSH_PORT="${SSH_PORT:-2222}"
 SSH_USER="${SSH_USER:-root}"
-MODULE_PATH="${MODULE_PATH:-/mnt/workdir/edu.ko}"
-DMA_TEST_BIN="${DMA_TEST_BIN:-/mnt/workdir/dma_roundtrip_test}"
+MODULE_PATH="${MODULE_PATH:-/workdir/edu.ko}"
+DMA_TEST_BIN="${DMA_TEST_BIN:-/workdir/tests/dma_roundtrip_test}"
 DEVICE="${DEVICE:-/dev/edu-fact0}"
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null

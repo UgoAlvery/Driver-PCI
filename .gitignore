@@ -53,4 +53,7 @@ dkms.conf
 
 # debug information files
 *.dwo
-XX-edu_factorial.md
+
+# Compiled test binaries (no extension, not covered by the patterns above)
+tests/dma_roundtrip_test
+*.qcow2
