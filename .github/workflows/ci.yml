@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Deux versions de runner = deux noyaux hôtes différents, donc deux
+        # jeux de headers différents. On ne construit pas de noyau custom :
+        # /lib/modules/$(uname -r)/build (fourni par le paquet
+        # linux-headers-$(uname -r), toujours installable puisqu'il
+        # correspond exactement au noyau démarré par le runner) suffit à
+        # vérifier que le module compile proprement contre plusieurs ABI
+        # kernel réelles.
+        os: [ubuntu-22.04, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools and matching kernel headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential "linux-headers-$(uname -r)"
+
+      - name: Build the module (fail on any compiler warning)
+        run: |
+          make 2>&1 | tee build.log
+          # `make` seul n'active pas -Werror ; on vérifie donc nous-mêmes
+          # qu'aucune ligne "warning:" n'est apparue. Un warning kernel
+          # aujourd'hui est souvent une ABI qui casse ou un bug latent
+          # demain.
+          if grep -q "warning:" build.log; then
+            echo "::error::compiler warnings found, see log above"
+            exit 1
+          fi
+
+      - name: Clean
+        run: make clean
+
+  format-check:
+    name: clang-format compliance
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting against .clang-format
+        run: |
+          fail=0
+          for f in *.c *.h tests/*.c; do
+            [ -f "$f" ] || continue
+            if ! diff -u "$f" <(clang-format --style=file "$f") > /tmp/diff.txt; then
+              echo "::error file=$f::not clang-format compliant"
+              cat /tmp/diff.txt
+              fail=1
+            fi
+          done
+          exit $fail
