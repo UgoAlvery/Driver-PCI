@@ -109,6 +109,13 @@ else
 	echo "  (skipped: $DMA_TEST_BIN not found -- build it with tests/Makefile first)"
 fi
 
+echo "==> Module reload minor reuse (IDA alloc/free)"
+if ssh_cmd "rmmod edu && insmod $MODULE_PATH && test -c $DEVICE"; then
+	pass "module reload: $DEVICE present after reload (IDA minor reused)"
+else
+	fail "module reload: $DEVICE missing after reload"
+fi
+
 echo "==> DMA concurrent access (data-race guard; needs KCSAN for guaranteed detection)"
 if ssh_cmd "test -x $DMA_TEST_BIN"; then
 	# Two concurrent round-trips: without the lock fix, dma_buf races cause corruption

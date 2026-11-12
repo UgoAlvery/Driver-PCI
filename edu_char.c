@@ -2,6 +2,7 @@
 #include <linux/cdev.h>
 #include <linux/uaccess.h>
 #include <linux/device.h>
+#include <linux/idr.h>
 #include <linux/slab.h>
 #include <linux/debugfs.h>
 
@@ -13,7 +14,7 @@
 
 static dev_t dev_base;
 static struct class *edu_class;
-static int next_minor;
+static DEFINE_IDA(edu_minor_ida);
 static struct dentry *edu_debugfs_root;
 
 /*
@@ -258,7 +259,9 @@ int edu_char_init(struct edu_dev *edu)
 	struct device *created_dev;
 	char debugfs_name[16];
 
-	minor_number = next_minor++;
+	minor_number = ida_alloc_max(&edu_minor_ida, 255, GFP_KERNEL);
+	if (minor_number < 0)
+		return minor_number;
 	edu->dev_num = MKDEV(MAJOR(dev_base), minor_number);
 
 	cdev_init(&edu->cdev, &edu_fops);
@@ -267,7 +270,7 @@ int edu_char_init(struct edu_dev *edu)
 	init_ret = cdev_add(&edu->cdev, edu->dev_num, 1);
 	if (init_ret) {
 		pr_warn("edu_char_init: cdev_add() failed\n");
-		return init_ret;
+		goto err_ida;
 	}
 
 	created_dev = device_create_with_groups(edu_class, &edu->pdev->dev,
@@ -298,6 +301,8 @@ int edu_char_init(struct edu_dev *edu)
 
 err_cdev:
 	cdev_del(&edu->cdev);
+err_ida:
+	ida_free(&edu_minor_ida, minor_number);
 	return init_ret;
 }
 
@@ -306,6 +311,7 @@ void edu_char_cleanup(struct edu_dev *edu)
 	debugfs_remove_recursive(edu->debugfs_dir);
 	device_destroy(edu_class, edu->dev_num);
 	cdev_del(&edu->cdev);
+	ida_free(&edu_minor_ida, MINOR(edu->dev_num));
 }
 
 /*
@@ -315,8 +321,6 @@ void edu_char_cleanup(struct edu_dev *edu)
 int edu_char_global_init(void)
 {
 	int init_ret;
-
-	next_minor = 0;
 
 	init_ret = alloc_chrdev_region(&dev_base, 0, 256, DEVICE_NAME);
 	if (init_ret) {
@@ -349,4 +353,5 @@ void edu_char_global_exit(void)
 	debugfs_remove_recursive(edu_debugfs_root);
 	class_destroy(edu_class);
 	unregister_chrdev_region(dev_base, 256);
+	ida_destroy(&edu_minor_ida);
 }
