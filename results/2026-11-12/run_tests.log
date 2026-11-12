@@ -1,0 +1,15 @@
+run_tests.sh NOT EXECUTED — QEMU VM (kernel_training.qcow2) not available in this environment.
+
+Reason: run_tests.sh connects via SSH to a running QEMU guest
+(scripts/run_qemu.sh). The qcow2 image is not present, and the EDU
+device only exists in QEMU emulation.
+
+To reproduce:
+  1. Start QEMU:  ./scripts/run_qemu.sh
+  2. Run tests:   SSH_HOST=localhost SSH_PORT=2222 bash tests/run_tests.sh
+
+What was verified instead:
+  - Full compile with -Wall -Wextra (0 warnings, 0 errors, kernel 6.8.0-147-generic)
+  - Code-level analysis of all 4 fixes against the QEMU EDU device spec
+    and the kernel driver model (locking, IDA, wait queue, integer overflow)
+  - git log confirms 4 fix commits on branch main

@@ -86,6 +86,21 @@ cat /sys/class/edu-fact/edu-fact0/irq_count   # -> 1
   teste pas le comportement matériel (voir `tests/README.md` pour
   pourquoi).
 
+## Résultats des corrections (2026-11-12)
+
+| Défaut | Fichier:ligne | Statut | Tests |
+|--------|--------------|--------|-------|
+| Lock avant copy\_from\_user/copy\_to\_user | `edu_char.c:170,192` | Corrigé | Test concurrent DMA ajouté à `run_tests.sh` |
+| `next_minor` race + fuite | `edu_char.c:261` | Corrigé via IDA | Test reload module ajouté |
+| Timeouts non bornés (factorial + DMA) | `edu_char.c:82,152` | Corrigé (1 s, `-ETIMEDOUT`) | Tests existants = régression |
+| Overflow N ≥ 13 (`uint32_t`) | `edu_char.c:63` | Corrigé (borne ≤ 12) | Tests N=13 et N=-1 ajoutés |
+
+**Compilation** : 0 warning, 0 erreur — kernel 6.8.0-147-generic, `-Wall -Wextra`
+(voir `results/2026-11-12/build.log`)
+
+**run_tests.sh** : non exécuté — VM QEMU (`kernel_training.qcow2`) requise, non disponible dans cet environnement.
+Devices testés en intégration : 0. Voir `results/2026-11-12/run_tests.log`.
+
 ## Limites connues
 
 - Testé uniquement en environnement QEMU/EDU émulé, jamais sur matériel
