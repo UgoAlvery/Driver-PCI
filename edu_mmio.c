@@ -66,3 +66,8 @@ void edu_mmio_dma_start(void __iomem *mmio_base, dma_addr_t src_addr,
 	iowrite32(byte_count, mmio_base + REG_DMA_CNT);
 	iowrite32(dma_cmd, mmio_base + REG_DMA_CMD);
 }
+
+void edu_mmio_dma_stop(void __iomem *mmio_base)
+{
+	iowrite32(0, mmio_base + REG_DMA_CMD);
+}

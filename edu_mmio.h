@@ -71,4 +71,7 @@ uint32_t edu_mmio_ack_irq(void __iomem *mmio_base);
 void edu_mmio_dma_start(void __iomem *mmio_base, dma_addr_t src_addr,
 			dma_addr_t dst_addr, uint32_t byte_count, bool to_ram);
 
+/* Clears DMA_CMD_START to abort an in-flight DMA transfer on timeout. */
+void edu_mmio_dma_stop(void __iomem *mmio_base);
+
 #endif

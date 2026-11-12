@@ -50,6 +50,7 @@ static ssize_t edu_write(struct file *file, const char __user *user_buf,
 	struct edu_dev *edu = file->private_data;
 	char kernel_buf[32];
 	long factorial_input;
+	long wait_ret;
 	unsigned long reg_lock_flags;
 	ssize_t write_result;
 
@@ -79,7 +80,12 @@ static ssize_t edu_write(struct file *file, const char __user *user_buf,
 
 	edu_mmio_write(edu->mmio_base, (uint32_t)factorial_input);
 
-	if (wait_event_interruptible(edu->wq, edu->irq_done)) {
+	wait_ret = wait_event_interruptible_timeout(edu->wq, edu->irq_done, HZ);
+	if (wait_ret == 0) {
+		write_result = -ETIMEDOUT;
+		goto out_unlock;
+	}
+	if (wait_ret < 0) {
 		write_result = -ERESTARTSYS;
 		goto out_unlock;
 	}
@@ -135,6 +141,7 @@ static int edu_dma_transfer(struct edu_dev *edu, dma_addr_t src_addr,
 			    bool to_ram)
 {
 	unsigned long reg_lock_flags;
+	long wait_ret;
 
 	spin_lock_irqsave(&edu->reg_lock, reg_lock_flags);
 	edu->dma_done = 0;
@@ -143,10 +150,16 @@ static int edu_dma_transfer(struct edu_dev *edu, dma_addr_t src_addr,
 	edu_mmio_dma_start(edu->mmio_base, src_addr, dst_addr, byte_count,
 			   to_ram);
 
-	if (wait_event_interruptible(edu->dma_wq, edu->dma_done))
-		return -ERESTARTSYS;
-
-	return 0;
+	wait_ret = wait_event_interruptible_timeout(edu->dma_wq, edu->dma_done,
+						    HZ);
+	if (wait_ret == 0) {
+		edu_mmio_dma_stop(edu->mmio_base);
+		spin_lock_irqsave(&edu->reg_lock, reg_lock_flags);
+		edu->dma_done = 0;
+		spin_unlock_irqrestore(&edu->reg_lock, reg_lock_flags);
+		return -ETIMEDOUT;
+	}
+	return wait_ret < 0 ? -ERESTARTSYS : 0;
 }
 
 /*
