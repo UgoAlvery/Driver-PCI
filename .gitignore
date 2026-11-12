@@ -57,3 +57,10 @@ dkms.conf
 # Compiled test binaries (no extension, not covered by the patterns above)
 tests/dma_roundtrip_test
 *.qcow2
+
+# IDE
+.idea/
+
+# Compilation database for IDE indexing (CLion/clangd) — machine-specific
+# absolute paths and local kernel headers, regenerate with scripts/gen_compile_commands.sh
+compile_commands.json

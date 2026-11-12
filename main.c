@@ -9,16 +9,16 @@
  */
 static int __init edu_init(void)
 {
-	int ret;
+	int init_ret;
 
-	ret = edu_char_global_init();
-	if (ret)
-		return ret;
+	init_ret = edu_char_global_init();
+	if (init_ret)
+		return init_ret;
 
-	ret = edu_pci_init();
-	if (ret) {
+	init_ret = edu_pci_init();
+	if (init_ret) {
 		edu_char_global_exit();
-		return ret;
+		return init_ret;
 	}
 
 	return 0;

@@ -22,19 +22,19 @@ static struct dentry *edu_debugfs_root;
  */
 static int edu_open(struct inode *inode, struct file *file)
 {
-	unsigned int mj = imajor(inode);
-	unsigned int mn = iminor(inode);
+	unsigned int major_number = imajor(inode);
+	unsigned int minor_number = iminor(inode);
 	struct edu_dev *edu;
 
 	edu = container_of(inode->i_cdev, struct edu_dev, cdev);
 	if (inode->i_cdev != &edu->cdev) {
-		pr_warn("edu_open: internal error (major=%d minor=%d)\n", mj,
-			mn);
+		pr_warn("edu_open: internal error (major=%d minor=%d)\n",
+			major_number, minor_number);
 		return -ENODEV;
 	}
 
 	file->private_data = edu;
-	pr_info("edu-fact%d opened\n", mn);
+	pr_info("edu-fact%d opened\n", minor_number);
 	return 0;
 }
 
@@ -43,23 +43,23 @@ static int edu_open(struct inode *inode, struct file *file)
  * on le donne au device pour calculer la factorielle,
  * et on attend que l'interruption nous dise que c'est terminé.
  */
-static ssize_t edu_write(struct file *file, const char __user *buf,
+static ssize_t edu_write(struct file *file, const char __user *user_buf,
 			 size_t count, loff_t *ppos)
 {
 	struct edu_dev *edu = file->private_data;
-	char kbuf[32];
-	long val;
-	unsigned long flags;
-	ssize_t ret;
+	char kernel_buf[32];
+	long factorial_input;
+	unsigned long reg_lock_flags;
+	ssize_t write_result;
 
-	if (count >= sizeof(kbuf))
+	if (count >= sizeof(kernel_buf))
 		return -EINVAL;
 
-	if (copy_from_user(kbuf, buf, count))
+	if (copy_from_user(kernel_buf, user_buf, count))
 		return -EFAULT;
 
-	kbuf[count] = '\0';
-	if (kstrtol(kbuf, 10, &val))
+	kernel_buf[count] = '\0';
+	if (kstrtol(kernel_buf, 10, &factorial_input))
 		return -EINVAL;
 
 	/*
@@ -72,34 +72,34 @@ static ssize_t edu_write(struct file *file, const char __user *buf,
 	if (mutex_lock_interruptible(&edu->io_lock))
 		return -ERESTARTSYS;
 
-	spin_lock_irqsave(&edu->reg_lock, flags);
+	spin_lock_irqsave(&edu->reg_lock, reg_lock_flags);
 	edu->irq_done = 0;
-	spin_unlock_irqrestore(&edu->reg_lock, flags);
+	spin_unlock_irqrestore(&edu->reg_lock, reg_lock_flags);
 
-	edu_mmio_write(edu->mmio_base, (uint32_t)val);
+	edu_mmio_write(edu->mmio_base, (uint32_t)factorial_input);
 
 	if (wait_event_interruptible(edu->wq, edu->irq_done)) {
-		ret = -ERESTARTSYS;
+		write_result = -ERESTARTSYS;
 		goto out_unlock;
 	}
 
 	edu->last_result = edu_mmio_read_result(edu->mmio_base);
-	ret = count;
+	write_result = count;
 
 out_unlock:
 	mutex_unlock(&edu->io_lock);
-	return ret;
+	return write_result;
 }
 
 /*
  * Lecture : on renvoie le dernier résultat calculé à l'utilisateur.
  */
-static ssize_t edu_read(struct file *file, char __user *buf, size_t count,
+static ssize_t edu_read(struct file *file, char __user *user_buf, size_t count,
 			loff_t *ppos)
 {
 	struct edu_dev *edu = file->private_data;
-	char kbuf[32];
-	int len;
+	char kernel_buf[32];
+	int reply_len;
 
 	if (*ppos > 0)
 		return 0;
@@ -113,31 +113,34 @@ static ssize_t edu_read(struct file *file, char __user *buf, size_t count,
 	if (mutex_lock_interruptible(&edu->io_lock))
 		return -ERESTARTSYS;
 
-	len = snprintf(kbuf, sizeof(kbuf), "%u\n", edu->last_result);
+	reply_len = snprintf(kernel_buf, sizeof(kernel_buf), "%u\n",
+			      edu->last_result);
 
 	mutex_unlock(&edu->io_lock);
 
-	if (copy_to_user(buf, kbuf, len))
+	if (copy_to_user(user_buf, kernel_buf, reply_len))
 		return -EFAULT;
 
-	*ppos = len;
-	return len;
+	*ppos = reply_len;
+	return reply_len;
 }
 
 /*
  * Lance un transfert DMA et attend sa fin (via IRQ). to_ram indique le sens :
  * true = EDU->RAM, false = RAM->EDU. Doit être appelée avec io_lock tenu.
  */
-static int edu_dma_transfer(struct edu_dev *edu, dma_addr_t src, dma_addr_t dst,
-			    uint32_t cnt, bool to_ram)
+static int edu_dma_transfer(struct edu_dev *edu, dma_addr_t src_addr,
+			    dma_addr_t dst_addr, uint32_t byte_count,
+			    bool to_ram)
 {
-	unsigned long flags;
+	unsigned long reg_lock_flags;
 
-	spin_lock_irqsave(&edu->reg_lock, flags);
+	spin_lock_irqsave(&edu->reg_lock, reg_lock_flags);
 	edu->dma_done = 0;
-	spin_unlock_irqrestore(&edu->reg_lock, flags);
+	spin_unlock_irqrestore(&edu->reg_lock, reg_lock_flags);
 
-	edu_mmio_dma_start(edu->mmio_base, src, dst, cnt, to_ram);
+	edu_mmio_dma_start(edu->mmio_base, src_addr, dst_addr, byte_count,
+			   to_ram);
 
 	if (wait_event_interruptible(edu->dma_wq, edu->dma_done))
 		return -ERESTARTSYS;
@@ -155,49 +158,51 @@ static int edu_dma_transfer(struct edu_dev *edu, dma_addr_t src, dma_addr_t dst,
 static long edu_dma_roundtrip(struct edu_dev *edu,
 			      struct edu_dma_req __user *req)
 {
-	uint32_t len;
-	int ret;
+	uint32_t transfer_len;
+	int dma_ret;
 
-	if (get_user(len, &req->len))
+	if (get_user(transfer_len, &req->len))
 		return -EFAULT;
 
-	if (len == 0 || len > EDU_DMA_BUF_SIZE)
+	if (transfer_len == 0 || transfer_len > EDU_DMA_BUF_SIZE)
 		return -EINVAL;
-
-	if (copy_from_user(edu->dma_buf, req->data, len))
-		return -EFAULT;
 
 	if (mutex_lock_interruptible(&edu->io_lock))
 		return -ERESTARTSYS;
 
-	ret = edu_dma_transfer(edu, edu->dma_handle, EDU_DMA_BUF_OFFSET, len,
-			       false);
-	if (ret)
+	/* dma_buf is shared: copy under lock to prevent concurrent ioctl races */
+	if (copy_from_user(edu->dma_buf, req->data, transfer_len)) {
+		mutex_unlock(&edu->io_lock);
+		return -EFAULT;
+	}
+
+	dma_ret = edu_dma_transfer(edu, edu->dma_handle, EDU_DMA_BUF_OFFSET,
+				   transfer_len, false);
+	if (dma_ret)
 		goto out_unlock;
 
-	ret = edu_dma_transfer(edu, EDU_DMA_BUF_OFFSET, edu->dma_handle, len,
-			       true);
-	if (!ret)
-		edu->last_dma_len = len;
+	dma_ret = edu_dma_transfer(edu, EDU_DMA_BUF_OFFSET, edu->dma_handle,
+				   transfer_len, true);
+	if (!dma_ret) {
+		edu->last_dma_len = transfer_len;
+		if (copy_to_user(req->data, edu->dma_buf, transfer_len))
+			dma_ret = -EFAULT;
+	}
 
 out_unlock:
 	mutex_unlock(&edu->io_lock);
-	if (ret)
-		return ret;
-
-	if (copy_to_user(req->data, edu->dma_buf, len))
-		return -EFAULT;
-
-	return 0;
+	return dma_ret;
 }
 
-static long edu_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long edu_ioctl(struct file *file, unsigned int ioctl_cmd,
+		      unsigned long ioctl_arg)
 {
 	struct edu_dev *edu = file->private_data;
 
-	switch (cmd) {
+	switch (ioctl_cmd) {
 	case EDU_IOC_DMA_ROUNDTRIP:
-		return edu_dma_roundtrip(edu, (struct edu_dma_req __user *)arg);
+		return edu_dma_roundtrip(edu,
+					 (struct edu_dma_req __user *)ioctl_arg);
 	default:
 		return -ENOTTY;
 	}
@@ -218,20 +223,20 @@ static const struct file_operations edu_fops = {
  * bas), on n'y met que ce qu'on est prêt à maintenir comme une petite ABI.
  */
 static ssize_t irq_count_show(struct device *dev, struct device_attribute *attr,
-			      char *buf)
+			      char *sysfs_buf)
 {
 	struct edu_dev *edu = dev_get_drvdata(dev);
 
-	return sysfs_emit(buf, "%d\n", atomic_read(&edu->irq_count));
+	return sysfs_emit(sysfs_buf, "%d\n", atomic_read(&edu->irq_count));
 }
 static DEVICE_ATTR_RO(irq_count);
 
 static ssize_t dma_count_show(struct device *dev, struct device_attribute *attr,
-			      char *buf)
+			      char *sysfs_buf)
 {
 	struct edu_dev *edu = dev_get_drvdata(dev);
 
-	return sysfs_emit(buf, "%d\n", atomic_read(&edu->dma_count));
+	return sysfs_emit(sysfs_buf, "%d\n", atomic_read(&edu->dma_count));
 }
 static DEVICE_ATTR_RO(dma_count);
 
@@ -248,28 +253,28 @@ ATTRIBUTE_GROUPS(edu);
  */
 int edu_char_init(struct edu_dev *edu)
 {
-	int ret;
-	int minor;
-	struct device *dev;
-	char name[16];
+	int init_ret;
+	int minor_number;
+	struct device *created_dev;
+	char debugfs_name[16];
 
-	minor = next_minor++;
-	edu->dev_num = MKDEV(MAJOR(dev_base), minor);
+	minor_number = next_minor++;
+	edu->dev_num = MKDEV(MAJOR(dev_base), minor_number);
 
 	cdev_init(&edu->cdev, &edu_fops);
 	edu->cdev.owner = THIS_MODULE;
 
-	ret = cdev_add(&edu->cdev, edu->dev_num, 1);
-	if (ret) {
+	init_ret = cdev_add(&edu->cdev, edu->dev_num, 1);
+	if (init_ret) {
 		pr_warn("edu_char_init: cdev_add() failed\n");
-		return ret;
+		return init_ret;
 	}
 
-	dev = device_create_with_groups(edu_class, &edu->pdev->dev,
-					edu->dev_num, edu, edu_groups,
-					DEVICE_NAME "%d", minor);
-	if (IS_ERR(dev)) {
-		ret = PTR_ERR(dev);
+	created_dev = device_create_with_groups(edu_class, &edu->pdev->dev,
+						edu->dev_num, edu, edu_groups,
+						DEVICE_NAME "%d", minor_number);
+	if (IS_ERR(created_dev)) {
+		init_ret = PTR_ERR(created_dev);
 		pr_warn("edu_char_init: device_create_with_groups() failed\n");
 		goto err_cdev;
 	}
@@ -280,8 +285,8 @@ int edu_char_init(struct edu_dev *edu)
 	 * de compatibilité, et son absence (CONFIG_DEBUGFS=n) n'est jamais
 	 * une erreur fatale pour le driver.
 	 */
-	snprintf(name, sizeof(name), "%d", minor);
-	edu->debugfs_dir = debugfs_create_dir(name, edu_debugfs_root);
+	snprintf(debugfs_name, sizeof(debugfs_name), "%d", minor_number);
+	edu->debugfs_dir = debugfs_create_dir(debugfs_name, edu_debugfs_root);
 	debugfs_create_atomic_t("irq_count", 0444, edu->debugfs_dir,
 				&edu->irq_count);
 	debugfs_create_atomic_t("dma_count", 0444, edu->debugfs_dir,
@@ -293,7 +298,7 @@ int edu_char_init(struct edu_dev *edu)
 
 err_cdev:
 	cdev_del(&edu->cdev);
-	return ret;
+	return init_ret;
 }
 
 void edu_char_cleanup(struct edu_dev *edu)
@@ -309,14 +314,14 @@ void edu_char_cleanup(struct edu_dev *edu)
  */
 int edu_char_global_init(void)
 {
-	int ret;
+	int init_ret;
 
 	next_minor = 0;
 
-	ret = alloc_chrdev_region(&dev_base, 0, 256, DEVICE_NAME);
-	if (ret) {
+	init_ret = alloc_chrdev_region(&dev_base, 0, 256, DEVICE_NAME);
+	if (init_ret) {
 		pr_warn("edu_char_global_init: alloc_chrdev_region() failed\n");
-		return ret;
+		return init_ret;
 	}
 
 	edu_class = class_create(DEVICE_NAME);

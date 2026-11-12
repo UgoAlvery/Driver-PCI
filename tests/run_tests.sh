@@ -109,6 +109,18 @@ else
 	echo "  (skipped: $DMA_TEST_BIN not found -- build it with tests/Makefile first)"
 fi
 
+echo "==> DMA concurrent access (data-race guard; needs KCSAN for guaranteed detection)"
+if ssh_cmd "test -x $DMA_TEST_BIN"; then
+	# Two concurrent round-trips: without the lock fix, dma_buf races cause corruption
+	if ssh_cmd "$DMA_TEST_BIN $DEVICE & $DMA_TEST_BIN $DEVICE; wait"; then
+		pass "DMA concurrent: both round-trips succeeded"
+	else
+		fail "DMA concurrent: error from concurrent round-trips"
+	fi
+else
+	echo "  (skipped: $DMA_TEST_BIN not found)"
+fi
+
 echo "==> Module unload"
 if ssh_cmd "rmmod edu"; then
 	pass "module unload"

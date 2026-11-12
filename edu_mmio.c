@@ -3,20 +3,20 @@
 
 #include "edu_mmio.h"
 
-/* 
+/*
  * On écrit la valeur dans le registre du device pour lancer le calcul de factorielle.
  */
-void edu_mmio_write(void __iomem *base, uint32_t val)
+void edu_mmio_write(void __iomem *mmio_base, uint32_t factorial_input)
 {
-	iowrite32(val, base + REG_FACTORIAL);
+	iowrite32(factorial_input, mmio_base + REG_FACTORIAL);
 }
 
 /*
  * On lit le résultat du calcul une fois que l'interruption nous a signalé que c'est fini.
  */
-uint32_t edu_mmio_read_result(void __iomem *base)
+uint32_t edu_mmio_read_result(void __iomem *mmio_base)
 {
-	return ioread32(base + REG_FACTORIAL);
+	return ioread32(mmio_base + REG_FACTORIAL);
 }
 
 /*
@@ -25,9 +25,9 @@ uint32_t edu_mmio_read_result(void __iomem *base)
  * d'interruption : quiconque attend sur la waitqueue reste bloqué
  * indéfiniment.
  */
-void edu_mmio_enable_irq(void __iomem *base)
+void edu_mmio_enable_irq(void __iomem *mmio_base)
 {
-	iowrite32(STATUS_IRQFACT, base + REG_STATUS);
+	iowrite32(STATUS_IRQFACT, mmio_base + REG_STATUS);
 }
 
 /*
@@ -36,12 +36,12 @@ void edu_mmio_enable_irq(void __iomem *base)
  * valeur dans le registre d'acquittement. C'est obligatoire depuis l'ISR :
  * une interruption non acquittée laisse la ligne INTx active.
  */
-uint32_t edu_mmio_ack_irq(void __iomem *base)
+uint32_t edu_mmio_ack_irq(void __iomem *mmio_base)
 {
-	uint32_t status = ioread32(base + REG_INTR_STATUS);
+	uint32_t irq_status = ioread32(mmio_base + REG_INTR_STATUS);
 
-	iowrite32(status, base + REG_INTR_ACK);
-	return status;
+	iowrite32(irq_status, mmio_base + REG_INTR_ACK);
+	return irq_status;
 }
 
 /*
@@ -53,16 +53,16 @@ uint32_t edu_mmio_ack_irq(void __iomem *base)
  * remet tient forcément sur 32 bits. On évite ainsi readq/writeq, dont le
  * support MMIO 64 bits n'est pas garanti sur toutes les architectures.
  */
-void edu_mmio_dma_start(void __iomem *base, dma_addr_t src, dma_addr_t dst,
-			uint32_t cnt, bool to_ram)
+void edu_mmio_dma_start(void __iomem *mmio_base, dma_addr_t src_addr,
+			dma_addr_t dst_addr, uint32_t byte_count, bool to_ram)
 {
-	uint32_t cmd = DMA_CMD_START | DMA_CMD_IRQ;
+	uint32_t dma_cmd = DMA_CMD_START | DMA_CMD_IRQ;
 
 	if (to_ram)
-		cmd |= DMA_CMD_DIR_TO_RAM;
+		dma_cmd |= DMA_CMD_DIR_TO_RAM;
 
-	iowrite32((uint32_t)src, base + REG_DMA_SRC);
-	iowrite32((uint32_t)dst, base + REG_DMA_DST);
-	iowrite32(cnt, base + REG_DMA_CNT);
-	iowrite32(cmd, base + REG_DMA_CMD);
+	iowrite32((uint32_t)src_addr, mmio_base + REG_DMA_SRC);
+	iowrite32((uint32_t)dst_addr, mmio_base + REG_DMA_DST);
+	iowrite32(byte_count, mmio_base + REG_DMA_CNT);
+	iowrite32(dma_cmd, mmio_base + REG_DMA_CMD);
 }

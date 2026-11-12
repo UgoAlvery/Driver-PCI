@@ -26,28 +26,28 @@
  * la ligne INTx reste asserted et le kernel rappelle le handler en boucle
  * (storm d'IRQ).
  */
-static irqreturn_t edu_irq_handler(int irq, void *data)
+static irqreturn_t edu_irq_handler(int irq, void *device_context)
 {
-	struct edu_dev *edu = data;
-	uint32_t status;
-	unsigned long flags;
+	struct edu_dev *edu = device_context;
+	uint32_t irq_status;
+	unsigned long reg_lock_flags;
 
-	status = edu_mmio_ack_irq(edu->mmio_base);
-	if (!(status & (FACT_IRQ | DMA_IRQ)))
+	irq_status = edu_mmio_ack_irq(edu->mmio_base);
+	if (!(irq_status & (FACT_IRQ | DMA_IRQ)))
 		return IRQ_NONE;
 
-	spin_lock_irqsave(&edu->reg_lock, flags);
-	if (status & FACT_IRQ)
+	spin_lock_irqsave(&edu->reg_lock, reg_lock_flags);
+	if (irq_status & FACT_IRQ)
 		edu->irq_done = 1;
-	if (status & DMA_IRQ)
+	if (irq_status & DMA_IRQ)
 		edu->dma_done = 1;
-	spin_unlock_irqrestore(&edu->reg_lock, flags);
+	spin_unlock_irqrestore(&edu->reg_lock, reg_lock_flags);
 
-	if (status & FACT_IRQ) {
+	if (irq_status & FACT_IRQ) {
 		atomic_inc(&edu->irq_count);
 		wake_up_interruptible(&edu->wq);
 	}
-	if (status & DMA_IRQ) {
+	if (irq_status & DMA_IRQ) {
 		atomic_inc(&edu->dma_count);
 		wake_up_interruptible(&edu->dma_wq);
 	}
@@ -62,7 +62,7 @@ static irqreturn_t edu_irq_handler(int irq, void *data)
 static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
 	struct edu_dev *edu;
-	int ret;
+	int probe_ret;
 
 	edu = kzalloc(sizeof(*edu), GFP_KERNEL);
 	if (!edu)
@@ -75,14 +75,14 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	spin_lock_init(&edu->reg_lock);
 	pci_set_drvdata(pdev, edu);
 
-	ret = pci_enable_device(pdev);
-	if (ret) {
+	probe_ret = pci_enable_device(pdev);
+	if (probe_ret) {
 		dev_err(&pdev->dev, "pci_enable_device() failed\n");
 		goto err_kfree;
 	}
 
-	ret = pci_request_region(pdev, 0, DEVICE_NAME);
-	if (ret) {
+	probe_ret = pci_request_region(pdev, 0, DEVICE_NAME);
+	if (probe_ret) {
 		dev_err(&pdev->dev, "pci_request_region() failed\n");
 		goto err_disable;
 	}
@@ -94,8 +94,8 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 * (256 Mio, cf. docs/specs/edu.rst). dma_alloc_coherent() ci-dessous
 	 * doit rester dans ce domaine adressable, d'où ce masque explicite.
 	 */
-	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(28));
-	if (ret) {
+	probe_ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(28));
+	if (probe_ret) {
 		dev_err(&pdev->dev, "dma_set_mask_and_coherent() failed\n");
 		goto err_release;
 	}
@@ -103,7 +103,7 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	edu->mmio_base = pci_iomap(pdev, 0, 0);
 	if (!edu->mmio_base) {
 		dev_err(&pdev->dev, "pci_iomap() failed\n");
-		ret = -ENOMEM;
+		probe_ret = -ENOMEM;
 		goto err_release;
 	}
 
@@ -116,13 +116,13 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 					  &edu->dma_handle, GFP_KERNEL);
 	if (!edu->dma_buf) {
 		dev_err(&pdev->dev, "dma_alloc_coherent() failed\n");
-		ret = -ENOMEM;
+		probe_ret = -ENOMEM;
 		goto err_iounmap;
 	}
 
-	ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED, DEVICE_NAME,
-			  edu);
-	if (ret) {
+	probe_ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED,
+				DEVICE_NAME, edu);
+	if (probe_ret) {
 		dev_err(&pdev->dev, "request_irq() failed\n");
 		goto err_dma_free;
 	}
@@ -134,8 +134,8 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 */
 	edu_mmio_enable_irq(edu->mmio_base);
 
-	ret = edu_char_init(edu);
-	if (ret) {
+	probe_ret = edu_char_init(edu);
+	if (probe_ret) {
 		dev_err(&pdev->dev, "edu_char_init() failed\n");
 		goto err_irq;
 	}
@@ -156,7 +156,7 @@ err_disable:
 	pci_disable_device(pdev);
 err_kfree:
 	kfree(edu);
-	return ret;
+	return probe_ret;
 }
 
 /*

@@ -41,8 +41,8 @@
  * actual EDU_DMA_BUF_OFFSET/EDU_DMA_BUF_SIZE values, shared with userspace.
  */
 
-void edu_mmio_write(void __iomem *base, uint32_t val);
-uint32_t edu_mmio_read_result(void __iomem *base);
+void edu_mmio_write(void __iomem *mmio_base, uint32_t factorial_input);
+uint32_t edu_mmio_read_result(void __iomem *mmio_base);
 
 /*
  * Enables interrupt generation on factorial completion (sets STATUS_IRQFACT
@@ -50,7 +50,7 @@ uint32_t edu_mmio_read_result(void __iomem *base);
  * but never raises an IRQ, and any driver blocked in wait_event_interruptible()
  * on completion hangs forever.
  */
-void edu_mmio_enable_irq(void __iomem *base);
+void edu_mmio_enable_irq(void __iomem *mmio_base);
 
 /*
  * Reads REG_INTR_STATUS to find out which interrupt(s) fired, then
@@ -60,7 +60,7 @@ void edu_mmio_enable_irq(void __iomem *base);
  * Returns the value that was read (and acknowledged), so the caller can
  * test which condition(s) caused this interrupt.
  */
-uint32_t edu_mmio_ack_irq(void __iomem *base);
+uint32_t edu_mmio_ack_irq(void __iomem *mmio_base);
 
 /*
  * Programme les 4 registres DMA (source, destination, taille, commande) et
@@ -68,7 +68,7 @@ uint32_t edu_mmio_ack_irq(void __iomem *base);
  * sur l'IRQ (DMA_CMD_IRQ est toujours positionné par cette fonction).
  * to_ram indique le sens : true = EDU->RAM, false = RAM->EDU.
  */
-void edu_mmio_dma_start(void __iomem *base, dma_addr_t src, dma_addr_t dst,
-			uint32_t cnt, bool to_ram);
+void edu_mmio_dma_start(void __iomem *mmio_base, dma_addr_t src_addr,
+			dma_addr_t dst_addr, uint32_t byte_count, bool to_ram);
 
 #endif

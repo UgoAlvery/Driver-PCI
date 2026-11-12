@@ -26,32 +26,32 @@ int main(int argc, char **argv)
 {
 	struct edu_dma_req req;
 	unsigned char expected[TEST_LEN];
-	int fd;
-	unsigned int i;
+	int device_fd;
+	unsigned int byte_index;
 
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s <device>\n", argv[0]);
 		return 2;
 	}
 
-	fd = open(argv[1], O_RDWR);
-	if (fd < 0) {
+	device_fd = open(argv[1], O_RDWR);
+	if (device_fd < 0) {
 		perror("open");
 		return 2;
 	}
 
 	req.len = TEST_LEN;
-	for (i = 0; i < req.len; i++)
-		req.data[i] = (unsigned char)(i * 7 + 3);
+	for (byte_index = 0; byte_index < req.len; byte_index++)
+		req.data[byte_index] = (unsigned char)(byte_index * 7 + 3);
 	memcpy(expected, req.data, req.len);
 
-	if (ioctl(fd, EDU_IOC_DMA_ROUNDTRIP, &req) < 0) {
+	if (ioctl(device_fd, EDU_IOC_DMA_ROUNDTRIP, &req) < 0) {
 		perror("ioctl(EDU_IOC_DMA_ROUNDTRIP)");
-		close(fd);
+		close(device_fd);
 		return 2;
 	}
 
-	close(fd);
+	close(device_fd);
 
 	if (memcmp(expected, req.data, req.len) != 0) {
 		fprintf(stderr,
