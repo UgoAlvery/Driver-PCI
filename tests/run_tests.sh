@@ -89,6 +89,20 @@ else
 	fail "0! expected 1, got '$result'"
 fi
 
+echo "==> Factorial overflow guard: N=13 must be rejected (13! > UINT32_MAX)"
+if ssh_cmd "echo 13 > $DEVICE" 2>/dev/null; then
+	fail "N=13 accepted (uint32_t overflow not caught)"
+else
+	pass "N=13 rejected (overflow guard)"
+fi
+
+echo "==> Factorial: negative input rejected"
+if ssh_cmd "printf '%s\n' -1 > $DEVICE" 2>/dev/null; then
+	fail "N=-1 accepted (should be rejected)"
+else
+	pass "N=-1 rejected"
+fi
+
 echo "==> sysfs introspection: irq_count reflects completed factorials"
 minor=$(basename "$DEVICE" | tr -dc '0-9')
 irq_count=$(ssh_cmd "cat /sys/class/edu-fact/edu-fact${minor}/irq_count" 2>/dev/null | tr -d '\r\n')

@@ -64,6 +64,10 @@ static ssize_t edu_write(struct file *file, const char __user *user_buf,
 	if (kstrtol(kernel_buf, 10, &factorial_input))
 		return -EINVAL;
 
+	/* 12! = 479001600 fits in uint32_t; 13! = 6227020800 overflows */
+	if (factorial_input < 0 || factorial_input > 12)
+		return -EINVAL;
+
 	/*
 	 * Le device EDU ignore silencieusement une écriture dans
 	 * REG_FACTORIAL si un calcul est déjà en cours (EDU_STATUS_COMPUTING).
