@@ -13,6 +13,11 @@
 #define EDU_VENDOR_ID 0x1234
 #define EDU_DEVICE_ID 0x11e8
 
+/* insmod edu.ko force_intx=1 to bypass MSI and use INTx (benchmark use only) */
+static bool force_intx;
+module_param(force_intx, bool, 0444);
+MODULE_PARM_DESC(force_intx, "Force INTx legacy interrupts (default: prefer MSI)");
+
 /*
  * Gestionnaire d'interruption : appelé quand le device a fini un calcul de
  * factorielle OU un transfert DMA (les deux mécanismes partagent la même
@@ -125,7 +130,9 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 	 * INTx if the host doesn't support MSI. min=1, max=1: we only use a
 	 * single interrupt vector regardless of mode.
 	 */
-	probe_ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI | PCI_IRQ_INTX);
+	probe_ret = pci_alloc_irq_vectors(pdev, 1, 1,
+					  force_intx ? PCI_IRQ_INTX
+					  	     : (PCI_IRQ_MSI | PCI_IRQ_INTX));
 	if (probe_ret < 0) {
 		dev_err(&pdev->dev, "pci_alloc_irq_vectors() failed\n");
 		goto err_dma_free;

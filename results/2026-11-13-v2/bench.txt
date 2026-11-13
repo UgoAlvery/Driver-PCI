@@ -1,0 +1,27 @@
+# edu driver v2 benchmark — 2026-11-13
+# Kernel: 6.18.16-0-virt (Alpine original, CONFIG_KASAN=n, CONFIG_PROVE_LOCKING=n)
+# Platform: QEMU/KVM, x86_64, 4096 MiB RAM, 2 vCPU
+# Device: QEMU EDU (1234:11e8), 60 repetitions each metric
+#
+# IMPORTANT: values are QEMU emulation artefacts.
+# EDU DMA is fully software-emulated by QEMU (no real PCIe DMA).
+# IRQ latency includes QEMU's device emulation path and KVM exit overhead.
+# Results are useful for comparing driver versions on the same host,
+# NOT for predicting real PCI hardware performance.
+#
+# IRQ latency = wall-clock time from write(N) to result available via read()
+# DMA latency = wall-clock time for EDU_IOC_DMA_ROUNDTRIP (4096 bytes, full)
+
+=== MSI mode (pci_alloc_irq_vectors, PCI_IRQ_MSI|PCI_IRQ_INTX) ===
+IRQ latency (write+read 8!)     min=44  median=53  p95=244  max=313  µs
+DMA throughput (4096 B r-trip)  min=20  median=20  p95=18   max=18   KB/s
+DMA latency    (4096 B r-trip)  min=199681  median=201776  p95=218196  max=218296  µs
+
+=== INTx mode (force_intx=1, PCI_IRQ_INTX only) ===
+IRQ latency (write+read 8!)     min=51  median=58  p95=172  max=193  µs
+DMA throughput (4096 B r-trip)  min=20  median=19  p95=18   max=18   KB/s
+DMA latency    (4096 B r-trip)  min=199709  median=212685  p95=218291  max=218423  µs
+
+# MSI vs INTx IRQ latency delta (median): 53 vs 58 µs → MSI -9%
+# DMA latency is dominated by QEMU emulation (~200 ms), IRQ mode has no effect.
+# p95 variability is KVM scheduling noise, not a meaningful signal.
