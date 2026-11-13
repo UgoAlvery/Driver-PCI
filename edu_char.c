@@ -66,8 +66,7 @@ static ssize_t edu_write(struct file *file, const char __user *user_buf,
 	if (kstrtol(kernel_buf, 10, &factorial_input))
 		return -EINVAL;
 
-	/* 12! = 479001600 fits in uint32_t; 13! = 6227020800 overflows */
-	if (factorial_input < 0 || factorial_input > 12)
+	if (!edu_factorial_input_valid(factorial_input))
 		return -EINVAL;
 
 	/*
@@ -184,7 +183,7 @@ static long edu_dma_roundtrip(struct edu_dev *edu,
 	if (get_user(transfer_len, &req->len))
 		return -EFAULT;
 
-	if (transfer_len == 0 || transfer_len > EDU_DMA_BUF_SIZE)
+	if (!edu_dma_len_valid(transfer_len))
 		return -EINVAL;
 
 	if (mutex_lock_interruptible(&edu->io_lock))
