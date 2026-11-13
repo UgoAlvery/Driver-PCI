@@ -48,6 +48,19 @@ jobs:
       - name: Clean
         run: make clean
 
+  build-userspace-tests:
+    name: Build userspace test programs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile test programs (gcc -Wall -Wextra -Werror)
+        # These run in userspace without a kernel module; compilation proves
+        # the uapi header (edu_ioctl.h) is self-contained for userspace and
+        # the test programs have no coding errors.
+        run: |
+          make -C tests CC=gcc CFLAGS="-Wall -Wextra -Werror -O2"
+
   format-check:
     name: clang-format compliance
     runs-on: ubuntu-24.04
