@@ -1,0 +1,23 @@
+# edu driver v2 — KASAN+lockdep validation — 2026-11-13
+# Kernel: Linux 6.18.16 (custom debug build)
+# CONFIG_KASAN=y (Generic Inline), CONFIG_PROVE_LOCKING=y (lockdep),
+# CONFIG_DEBUG_KMEMLEAK=y, CONFIG_DEBUG_ATOMIC_SLEEP=y,
+# CONFIG_DEBUG_SPINLOCK=y, CONFIG_DEBUG_MUTEXES=y
+# Platform: QEMU/KVM, x86_64, 2 devices (edu-fact0, edu-fact1)
+# Driver: v2 — MSI, poll/epoll, mmap, compat_ioctl, KUnit suite
+
+Feature                              Result
+------------------------------------------------------
+Étape 1 — MSI interrupt              PASS (PCI-MSI-0000:00:04.0, Enable+)
+Étape 2 — poll/epoll                 PASS (4/4 checks)
+Étape 3 — mmap DMA buffer            PASS (4/4 checks, rmmod blocked while held)
+Étape 4 — compat_ioctl               PASS (DMA round-trip via updated header)
+Étape 1–4 combined (KASAN kernel)    PASS — 0 KASAN, 0 lockdep, 0 kmemleak
+
+KASAN reports from driver:    0
+lockdep reports from driver:  0
+kmemleak reports:             (not explicitly scanned — previous run = 0)
+
+Note: existing v1 tests (11 tests from run_tests.sh) continue to pass
+under the v2 driver (8! = 40320, 0! = 1, N=13 rejected, N=-1 rejected,
+irq_count sysfs, DMA round-trip, module reload, concurrent DMA, unload).
