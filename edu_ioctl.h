@@ -1,8 +1,20 @@
 #ifndef EDU_IOCTL_H
 #define EDU_IOCTL_H
 
-#include <linux/ioctl.h>
-#include <linux/types.h>
+/*
+ * uapi header: safe to include from both kernel and userspace.
+ * linux/ioctl.h and linux/types.h are part of the installed kernel
+ * headers and are explicitly designed for userspace inclusion.
+ */
+#ifdef __KERNEL__
+# include <linux/ioctl.h>
+# include <linux/types.h>
+#else
+# include <sys/ioctl.h>
+# include <stdint.h>
+  typedef uint32_t __u32;
+  typedef uint8_t  __u8;
+#endif
 
 #include "edu_common.h"
 

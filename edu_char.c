@@ -299,12 +299,24 @@ static long edu_ioctl(struct file *file, unsigned int ioctl_cmd,
 	}
 }
 
+/*
+ * struct edu_dma_req contains only __u32 and __u8[]: no pointers, no
+ * size_t, identical layout on 32-bit and 64-bit. The 64-bit ioctl handler
+ * works unchanged for 32-bit callers.
+ */
+static long edu_compat_ioctl(struct file *file, unsigned int ioctl_cmd,
+			     unsigned long ioctl_arg)
+{
+	return edu_ioctl(file, ioctl_cmd, ioctl_arg);
+}
+
 static const struct file_operations edu_fops = {
 	.owner = THIS_MODULE,
 	.open = edu_open,
 	.read = edu_read,
 	.write = edu_write,
 	.unlocked_ioctl = edu_ioctl,
+	.compat_ioctl = edu_compat_ioctl,
 	.poll = edu_poll,
 	.mmap = edu_mmap,
 };
