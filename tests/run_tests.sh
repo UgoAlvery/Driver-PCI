@@ -29,6 +29,7 @@ SSH_USER="${SSH_USER:-root}"
 MODULE_PATH="${MODULE_PATH:-/workdir/edu.ko}"
 DMA_TEST_BIN="${DMA_TEST_BIN:-/workdir/tests/dma_roundtrip_test}"
 POLL_TEST_BIN="${POLL_TEST_BIN:-/workdir/tests/poll_test}"
+MMAP_TEST_BIN="${MMAP_TEST_BIN:-/workdir/tests/mmap_test}"
 DEVICE="${DEVICE:-/dev/edu-fact0}"
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
@@ -140,6 +141,17 @@ if ssh_cmd "test -x $POLL_TEST_BIN"; then
 	fi
 else
 	echo "  (skipped: $POLL_TEST_BIN not found -- build with tests/Makefile first)"
+fi
+
+echo "==> mmap DMA buffer (dma_mmap_coherent, module-ref survives rmmod)"
+if ssh_cmd "test -x $MMAP_TEST_BIN"; then
+	if ssh_cmd "$MMAP_TEST_BIN $DEVICE" 2>/dev/null; then
+		pass "mmap DMA buffer: coherency and module-ref correct"
+	else
+		fail "mmap DMA buffer: unexpected result from mmap_test"
+	fi
+else
+	echo "  (skipped: $MMAP_TEST_BIN not found -- build with tests/Makefile first)"
 fi
 
 echo "==> Module reload minor reuse (IDA alloc/free)"

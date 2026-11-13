@@ -6,6 +6,7 @@
 #include <linux/slab.h>
 #include <linux/debugfs.h>
 #include <linux/poll.h>
+#include <linux/mm.h>
 
 #include "edu_char.h"
 #include "edu_mmio.h"
@@ -222,6 +223,52 @@ out_unlock:
  * under reg_lock, so if the IRQ fires between poll_wait() and the spin_lock
  * below, wake_up will find us on the waitqueue and re-notify.
  */
+/*
+ * mmap: maps the coherent DMA buffer (edu->dma_buf, EDU_DMA_BUF_SIZE bytes)
+ * into userspace. Only one page (offset 0) is supported.
+ *
+ * A module reference is taken at map time and released at unmap time via
+ * vm_ops. This prevents rmmod from succeeding while a mapping is active —
+ * the kernel returns -EBUSY — so the DMA buffer is never freed under a live
+ * mapping.
+ */
+static void edu_vma_open(struct vm_area_struct *vma)
+{
+	try_module_get(THIS_MODULE); /* can't fail: module is already loaded */
+}
+
+static void edu_vma_close(struct vm_area_struct *vma)
+{
+	module_put(THIS_MODULE);
+}
+
+static const struct vm_operations_struct edu_vm_ops = {
+	.open  = edu_vma_open,
+	.close = edu_vma_close,
+};
+
+static int edu_mmap(struct file *file, struct vm_area_struct *vma)
+{
+	struct edu_dev *edu = file->private_data;
+	int ret;
+
+	if (vma->vm_pgoff != 0)
+		return -EINVAL;
+
+	if (!try_module_get(THIS_MODULE))
+		return -ENODEV;
+
+	ret = dma_mmap_coherent(&edu->pdev->dev, vma, edu->dma_buf,
+				edu->dma_handle, vma->vm_end - vma->vm_start);
+	if (ret) {
+		module_put(THIS_MODULE);
+		return ret;
+	}
+
+	vma->vm_ops = &edu_vm_ops;
+	return 0;
+}
+
 static __poll_t edu_poll(struct file *file, struct poll_table_struct *wait)
 {
 	struct edu_dev *edu = file->private_data;
@@ -259,6 +306,7 @@ static const struct file_operations edu_fops = {
 	.write = edu_write,
 	.unlocked_ioctl = edu_ioctl,
 	.poll = edu_poll,
+	.mmap = edu_mmap,
 };
 
 /*
