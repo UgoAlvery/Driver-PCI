@@ -15,15 +15,25 @@ l'étend pour couvrir DMA, robustesse et une hygiène de projet
 - **Factorielle** : `echo N > /dev/edu-factX` puis `cat /dev/edu-factX`,
   calcul effectué par le device, complétion signalée par IRQ (pas de
   polling).
+- **MSI** : `pci_alloc_irq_vectors` préfère MSI ; repli automatique sur
+  INTx si non disponible.
 - **DMA bidirectionnel** : round-trip RAM→EDU→EDU→RAM via un ioctl
   (`EDU_IOC_DMA_ROUNDTRIP`), buffer cohérent alloué une fois au probe,
   complétion également signalée par IRQ.
+- **poll/epoll** : `EPOLLIN` quand un résultat est prêt, `EPOLLOUT`
+  toujours ; sans perte de réveil.
+- **mmap DMA** : le buffer DMA cohérent est mappable en espace utilisateur
+  (`dma_mmap_coherent`) ; `rmmod` retourne `EBUSY` tant qu'un mapping est actif.
+- **compat\_ioctl** : struct 100 % compatible 32/64 bits (pas de pointeur,
+  pas de `size_t`) ; `.compat_ioctl` enregistré.
 - **Plusieurs devices** : chaque device EDU détecté obtient son propre
   `/dev/edu-factN`, son propre buffer DMA, ses propres compteurs.
 - **Introspection** : compteurs d'IRQ/DMA exposés en sysfs (ABI stable)
   et en debugfs (détail de debug, non contractuel).
 - **Robustesse** : gestion d'erreur en cascade sur tout le chemin de
   `probe()`, locking cohérent entre contexte process et contexte IRQ.
+- **KUnit** : 12 cas de test sur la logique pure (validation entrées,
+  constantes ioctl), compilés avec `obj-$(CONFIG_KUNIT)`.
 
 ## Architecture
 
@@ -96,10 +106,121 @@ cat /sys/class/edu-fact/edu-fact0/irq_count   # -> 1
 | Overflow N ≥ 13 (`uint32_t`) | `edu_char.c:63` | Corrigé (borne ≤ 12) | Tests N=13 et N=-1 ajoutés |
 
 **Compilation** : 0 warning, 0 erreur — kernel 6.8.0-147-generic, `-Wall -Wextra`
-(voir `results/2026-11-12/build.log`)
+(voir `results/2026-11-12/build.log`). Recompilé 0 warning contre kernel 6.18.16
+debug KASAN le 2026-11-13.
 
-**run_tests.sh** : non exécuté — VM QEMU (`kernel_training.qcow2`) requise, non disponible dans cet environnement.
-Devices testés en intégration : 0. Voir `results/2026-11-12/run_tests.log`.
+**run_tests.sh** (2026-11-12) : non exécuté — VM non disponible dans cet environnement.
+**Tests d'intégration** (2026-11-13) : 17/17 PASS sur kernel KASAN+lockdep+kmemleak,
+2 devices. Voir `results/2026-11-13-kasan-lockdep/`.
+
+## Vérification dynamique (2026-11-13)
+
+Kernel de debug : Linux **6.18.16** compilé depuis les sources
+(gcc 13.3, 20 cœurs, 23 min), booté via QEMU KVM sur Alpine
+(`kernel_training.qcow2`, root `/dev/sda3`).
+
+Options activées : `CONFIG_KASAN=y` (KASAN Generic Inline),
+`CONFIG_PROVE_LOCKING=y` (lockdep), `CONFIG_DEBUG_KMEMLEAK=y`,
+`CONFIG_DEBUG_ATOMIC_SLEEP=y`, `CONFIG_DEBUG_SPINLOCK=y`,
+`CONFIG_DEBUG_MUTEXES=y`. `CONFIG_PANIC_ON_OOPS` non activé.
+
+**Preuve que les détecteurs fonctionnent (Étape 2 obligatoire) :**
+- Module jetable `kasan_test.ko` : écrit 1 octet hors de `kmalloc(16)` →
+  `BUG: KASAN: slab-out-of-bounds in kasan_test_init` détecté
+  (voir `results/2026-11-13-kasan-lockdep/dmesg-kasan-proof.txt`).
+- Module jetable `lockdep_test.ko` : ordre AB-BA sur deux mutex →
+  `WARNING: possible circular locking dependency detected / *** DEADLOCK ***`
+  (voir `results/2026-11-13-kasan-lockdep/dmesg-lockdep-proof.txt`).
+
+**Scénarios exécutés sur 2 devices (`/dev/edu-fact0` et `/dev/edu-fact1`) :**
+
+| Scénario | Résultat |
+|----------|----------|
+| Factorielle 8!, 0! | PASS |
+| Overflow N ≥ 13 | PASS |
+| Input négatif | PASS |
+| sysfs `irq_count` | PASS |
+| DMA round-trip (256 octets) | PASS |
+| Module reload, minor réutilisé (IDA) | PASS |
+| DMA concurrent sur même device | PASS |
+| Factorielle concurrente sur 2 devices (20 iter.) | PASS |
+| DMA concurrent sur 2 devices (10 iter.) | PASS |
+| 10 cycles load/unload (IDA minor reuse) | PASS |
+| IRQ sous charge (50 factorielles × 2 devices) | PASS |
+| Déchargement final | PASS |
+| kmemleak après tous les tests | PASS (vide) |
+
+**Total : 17/17 PASS.**
+
+Rapports KASAN : 0 sur les chemins exercés (hors modules de preuve jetables).
+Rapports lockdep : 0 sur les chemins exercés (hors modules de preuve jetables).
+Rapports kmemleak : 0.
+KCSAN : non effectué (build séparé requis, hors périmètre de cette session).
+
+Preuves archivées dans `results/2026-11-13-kasan-lockdep/` :
+`.config` du kernel de debug, commande QEMU exacte, `dmesg` complet,
+extraits KASAN et lockdep des modules de preuve, résultats des tests,
+sortie kmemleak.
+
+**Absence de rapport sur les chemins exercés ; ne prouve pas l'absence
+de défaut sur les chemins non exercés.**
+
+## Driver v2 — évolutions (2026-11-13)
+
+Cinq évolutions ajoutées après la validation KASAN/lockdep initiale,
+chacune dans un commit séparé, toutes revalidées sous KASAN+lockdep.
+
+| Étape | Évolution | Fichiers modifiés | Test |
+|-------|-----------|-------------------|------|
+| 1 | MSI (`pci_alloc_irq_vectors`, INTx fallback) | `edu_pci.c` | `PCI-MSI` dans `/proc/interrupts` |
+| 2 | poll/epoll (`poll_wait`, lost-wakeup safe) | `edu_char.c` | `tests/poll_test.c` |
+| 3 | mmap DMA buffer (`dma_mmap_coherent`, module-ref) | `edu_char.c` | `tests/mmap_test.c` |
+| 4 | compat\_ioctl + uapi header guards | `edu_char.c`, `edu_ioctl.h` | recompilation userspace 0 warning |
+| 5 | KUnit (12 cas, logique pure) | `edu_kunit.c`, `Makefile` | `obj-$(CONFIG_KUNIT)` gated |
+
+**run\_tests.sh après v2 : 14 tests** (11 originaux + MSI check + poll + mmap).
+
+### Vérification KASAN+lockdep v2 (2026-11-13)
+
+Kernel et configuration identiques à la section ci-dessus (Linux 6.18.16
+KASAN Generic Inline + lockdep + kmemleak). Module compilé, chargé, exercé
+sur les nouveaux chemins (MSI, poll, mmap, compat\_ioctl), puis déchargé.
+
+| Scénario v2 | Résultat |
+|-------------|----------|
+| MSI Enable+ (`lspci -v`) | PASS |
+| poll POLLOUT + POLLIN (5! = 120) | PASS |
+| mmap cohérence + ioctl concourant | PASS |
+| rmmod bloqué avec mmap actif | PASS |
+| DMA round-trip compat\_ioctl path | PASS |
+| Chargement/déchargement final | PASS |
+
+Rapports KASAN v2 : **0**. Rapports lockdep v2 : **0**.
+Preuves archivées dans `results/2026-11-13-v2/`.
+
+**Absence de rapport sur les chemins exercés ; ne prouve pas l'absence
+de défaut sur les chemins non exercés.**
+
+### Benchmark v2 (kernel sans KASAN, 2026-11-13)
+
+Kernel `6.18.16-0-virt` Alpine (CONFIG\_KASAN=n, CONFIG\_PROVE\_LOCKING=n).
+60 répétitions, `clock_gettime(CLOCK_MONOTONIC)`. Chiffres réels mesurés.
+
+| Métrique | Mode | min | médiane | p95 | max |
+|----------|------|-----|---------|-----|-----|
+| Latence IRQ (write+read 8!) | MSI | 44 µs | **53 µs** | 244 µs | 313 µs |
+| Latence IRQ (write+read 8!) | INTx | 51 µs | **58 µs** | 172 µs | 193 µs |
+| Latence DMA (round-trip 4096 B) | MSI | 199 ms | **202 ms** | 218 ms | 218 ms |
+| Débit DMA (round-trip 4096 B) | MSI | 20 KB/s | **20 KB/s** | 18 KB/s | 18 KB/s |
+
+**Delta MSI vs INTx (médiane) : −9 % en faveur de MSI.**
+
+**Ces chiffres sont des valeurs relatives propres à l'émulation QEMU/KVM.**
+Le DMA du device EDU est entièrement émulé par logiciel (pas de vrai DMA
+PCIe) ; les ~200 ms par round-trip sont le coût de l'émulation QEMU, pas
+une caractéristique du driver. L'écart MSI/INTx (5 µs médiane) inclut
+le bruit du scheduler KVM ; il n'est pas représentatif de matériel réel.
+Utile uniquement pour comparer deux versions du driver sur le même hôte.
 
 ## Limites connues
 
@@ -115,5 +236,4 @@ Devices testés en intégration : 0. Voir `results/2026-11-12/run_tests.log`.
 ## Auteurs
 
 Voir [`Authors.txt`](Authors.txt) pour la base du TP original.
-Extensions DMA / robustesse / tests / CI : Ugo Alvery-Marlier.C'est un choix assumé plutôt qu'une CI qui prétendrait valider le
-matériel alors qu'elle ne le peut pas.
+Extensions DMA / robustesse / tests / CI : Ugo Alvery-Marlier.
