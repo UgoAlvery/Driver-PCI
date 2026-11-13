@@ -120,11 +120,23 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_iounmap;
 	}
 
-	probe_ret = request_irq(pdev->irq, edu_irq_handler, IRQF_SHARED,
+	/*
+	 * Try MSI first (dedicated line, no IRQF_SHARED needed); fall back to
+	 * INTx if the host doesn't support MSI. min=1, max=1: we only use a
+	 * single interrupt vector regardless of mode.
+	 */
+	probe_ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI | PCI_IRQ_INTX);
+	if (probe_ret < 0) {
+		dev_err(&pdev->dev, "pci_alloc_irq_vectors() failed\n");
+		goto err_dma_free;
+	}
+
+	probe_ret = request_irq(pci_irq_vector(pdev, 0), edu_irq_handler,
+				pdev->msi_enabled ? 0 : IRQF_SHARED,
 				DEVICE_NAME, edu);
 	if (probe_ret) {
 		dev_err(&pdev->dev, "request_irq() failed\n");
-		goto err_dma_free;
+		goto err_free_vectors;
 	}
 
 	/*
@@ -140,11 +152,14 @@ static int edu_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		goto err_irq;
 	}
 
-	dev_info(&pdev->dev, "edu driver loaded\n");
+	dev_info(&pdev->dev, "edu driver loaded (IRQ %s)\n",
+		 pdev->msi_enabled ? "MSI" : "INTx");
 	return 0;
 
 err_irq:
-	free_irq(pdev->irq, edu);
+	free_irq(pci_irq_vector(pdev, 0), edu);
+err_free_vectors:
+	pci_free_irq_vectors(pdev);
 err_dma_free:
 	dma_free_coherent(&pdev->dev, EDU_DMA_BUF_SIZE, edu->dma_buf,
 			  edu->dma_handle);
@@ -168,7 +183,8 @@ static void edu_remove(struct pci_dev *pdev)
 	struct edu_dev *edu = pci_get_drvdata(pdev);
 
 	edu_char_cleanup(edu);
-	free_irq(pdev->irq, edu);
+	free_irq(pci_irq_vector(pdev, 0), edu);
+	pci_free_irq_vectors(pdev);
 	mutex_destroy(&edu->io_lock);
 	dma_free_coherent(&pdev->dev, EDU_DMA_BUF_SIZE, edu->dma_buf,
 			  edu->dma_handle);

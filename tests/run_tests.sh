@@ -73,6 +73,13 @@ else
 	fail "device node $DEVICE missing"
 fi
 
+echo "==> MSI interrupt mode (requires driver built with MSI support)"
+if ssh_cmd "grep 'edu-fact' /proc/interrupts | grep -q 'PCI-MSI'" 2>/dev/null; then
+	pass "MSI interrupt mode active (PCI-MSI in /proc/interrupts)"
+else
+	fail "MSI not active — only INTx found in /proc/interrupts"
+fi
+
 echo "==> Factorial: 8! == 40320"
 result=$(ssh_cmd "echo 8 > $DEVICE && cat $DEVICE" 2>/dev/null | tr -d '\r\n')
 if [ "$result" = "40320" ]; then
