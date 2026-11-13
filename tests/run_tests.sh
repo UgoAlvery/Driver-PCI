@@ -28,6 +28,7 @@ SSH_PORT="${SSH_PORT:-2222}"
 SSH_USER="${SSH_USER:-root}"
 MODULE_PATH="${MODULE_PATH:-/workdir/edu.ko}"
 DMA_TEST_BIN="${DMA_TEST_BIN:-/workdir/tests/dma_roundtrip_test}"
+POLL_TEST_BIN="${POLL_TEST_BIN:-/workdir/tests/poll_test}"
 DEVICE="${DEVICE:-/dev/edu-fact0}"
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
@@ -128,6 +129,17 @@ if ssh_cmd "test -x $DMA_TEST_BIN"; then
 	fi
 else
 	echo "  (skipped: $DMA_TEST_BIN not found -- build it with tests/Makefile first)"
+fi
+
+echo "==> poll/epoll: POLLOUT before write, POLLIN after write"
+if ssh_cmd "test -x $POLL_TEST_BIN"; then
+	if ssh_cmd "$POLL_TEST_BIN $DEVICE" 2>/dev/null; then
+		pass "poll/epoll: POLLOUT+POLLIN semantics correct"
+	else
+		fail "poll/epoll: unexpected result from poll_test"
+	fi
+else
+	echo "  (skipped: $POLL_TEST_BIN not found -- build with tests/Makefile first)"
 fi
 
 echo "==> Module reload minor reuse (IDA alloc/free)"

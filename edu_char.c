@@ -5,6 +5,7 @@
 #include <linux/idr.h>
 #include <linux/slab.h>
 #include <linux/debugfs.h>
+#include <linux/poll.h>
 
 #include "edu_char.h"
 #include "edu_mmio.h"
@@ -212,6 +213,31 @@ out_unlock:
 	return dma_ret;
 }
 
+/*
+ * poll/epoll: EPOLLIN when a factorial result is ready to read; EPOLLOUT
+ * always (a new write() will block on io_lock at worst, never be refused).
+ *
+ * Lost-wakeup safe: poll_wait() registers before irq_done is sampled.
+ * The IRQ handler calls wake_up_interruptible() AFTER setting irq_done
+ * under reg_lock, so if the IRQ fires between poll_wait() and the spin_lock
+ * below, wake_up will find us on the waitqueue and re-notify.
+ */
+static __poll_t edu_poll(struct file *file, struct poll_table_struct *wait)
+{
+	struct edu_dev *edu = file->private_data;
+	__poll_t mask = EPOLLOUT | EPOLLWRNORM;
+	unsigned long flags;
+
+	poll_wait(file, &edu->wq, wait);
+
+	spin_lock_irqsave(&edu->reg_lock, flags);
+	if (edu->irq_done)
+		mask |= EPOLLIN | EPOLLRDNORM;
+	spin_unlock_irqrestore(&edu->reg_lock, flags);
+
+	return mask;
+}
+
 static long edu_ioctl(struct file *file, unsigned int ioctl_cmd,
 		      unsigned long ioctl_arg)
 {
@@ -232,6 +258,7 @@ static const struct file_operations edu_fops = {
 	.read = edu_read,
 	.write = edu_write,
 	.unlocked_ioctl = edu_ioctl,
+	.poll = edu_poll,
 };
 
 /*
