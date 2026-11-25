@@ -1,5 +1,7 @@
 # edu-driver — Linux PCI character driver for the QEMU EDU device
 
+![CI](https://github.com/UgoAlvery/Driver-PCI/actions/workflows/ci.yml/badge.svg)
+
 Driver caractère PCI pour le [device pédagogique EDU de
 QEMU](https://www.qemu.org/docs/master/specs/edu.html) : calcul de
 factorielle piloté par IRQ, transfert DMA bidirectionnel, introspection
