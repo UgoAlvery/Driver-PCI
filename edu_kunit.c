@@ -18,9 +18,10 @@
 
 static void test_factorial_valid_range(struct kunit *test)
 {
-	KUNIT_EXPECT_TRUE(test, edu_factorial_input_valid(0));  /* 0! = 1 */
+	KUNIT_EXPECT_TRUE(test, edu_factorial_input_valid(0)); /* 0! = 1 */
 	KUNIT_EXPECT_TRUE(test, edu_factorial_input_valid(1));
-	KUNIT_EXPECT_TRUE(test, edu_factorial_input_valid(12)); /* max: fits u32 */
+	KUNIT_EXPECT_TRUE(test,
+			  edu_factorial_input_valid(12)); /* max: fits u32 */
 }
 
 static void test_factorial_overflow_guard(struct kunit *test)
@@ -114,7 +115,7 @@ static struct kunit_case edu_kunit_cases[] = {
 };
 
 static struct kunit_suite edu_kunit_suite = {
-	.name  = "edu_driver",
+	.name = "edu_driver",
 	.test_cases = edu_kunit_cases,
 };
 
