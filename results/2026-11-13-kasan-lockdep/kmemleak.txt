@@ -1,0 +1,5 @@
+# kmemleak scan result - 2026-11-13
+# Scan after: 17 tests (10 load/unload cycles, concurrent DMA, 50 factorials, final rmmod)
+# Command: doas ash -c "echo scan > /sys/kernel/debug/kmemleak; sleep 5; cat /sys/kernel/debug/kmemleak"
+
+(empty - no memory leaks detected)

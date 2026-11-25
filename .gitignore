@@ -64,3 +64,8 @@ tests/dma_roundtrip_test
 # Compilation database for IDE indexing (CLion/clangd) — machine-specific
 # absolute paths and local kernel headers, regenerate with scripts/gen_compile_commands.sh
 compile_commands.json
+tests/bench
+tests/mmap_test
+tests/poll_test
+ETAT_PROJET_edu-driver.md
+.cache/

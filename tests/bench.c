@@ -52,17 +52,17 @@ static void print_stats(const char *label, long long *samples, int n,
 	memcpy(sorted, samples, n * sizeof(long long));
 	qsort(sorted, n, sizeof(long long), cmp_ll);
 
-	long long min  = sorted[0];
-	long long med  = sorted[n / 2];
-	long long p95  = sorted[(int)(n * 0.95)];
-	long long max  = sorted[n - 1];
+	long long min = sorted[0];
+	long long med = sorted[n / 2];
+	long long p95 = sorted[(int)(n * 0.95)];
+	long long max = sorted[n - 1];
 
 	if (as_throughput) {
 		/* Convert ns/op → KB/s (EDU DMA is QEMU-emulated, not fast) */
-		double med_kbs  = (double)buf_bytes / (med  / 1e9) / 1024;
-		double p95_kbs  = (double)buf_bytes / (p95  / 1e9) / 1024;
-		double min_kbs  = (double)buf_bytes / (min  / 1e9) / 1024;
-		double max_kbs  = (double)buf_bytes / (max  / 1e9) / 1024;
+		double med_kbs = (double)buf_bytes / (med / 1e9) / 1024;
+		double p95_kbs = (double)buf_bytes / (p95 / 1e9) / 1024;
+		double min_kbs = (double)buf_bytes / (min / 1e9) / 1024;
+		double max_kbs = (double)buf_bytes / (max / 1e9) / 1024;
 		printf("%-30s  min=%.0f  median=%.0f  p95=%.0f  max=%.0f  KB/s\n",
 		       label, min_kbs, med_kbs, p95_kbs, max_kbs);
 	} else {
@@ -95,8 +95,14 @@ int main(int argc, char **argv)
 	/* --- IRQ latency: write(8) + read() round-trip --- */
 	for (i = 0; i < REPS; i++) {
 		t0 = ns_now();
-		if (write(fd, "8\n", 2) < 0) { perror("write"); return 1; }
-		if (read(fd, buf, sizeof(buf)) < 0) { perror("read"); return 1; }
+		if (write(fd, "8\n", 2) < 0) {
+			perror("write");
+			return 1;
+		}
+		if (read(fd, buf, sizeof(buf)) < 0) {
+			perror("read");
+			return 1;
+		}
 		lat[i] = ns_now() - t0;
 		/* Reset ppos for next read */
 		lseek(fd, 0, SEEK_SET);

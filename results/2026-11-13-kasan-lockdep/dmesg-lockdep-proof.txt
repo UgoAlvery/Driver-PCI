@@ -1,0 +1,45 @@
+# Lockdep proof — extracted from dmesg during second boot session
+# lockdep_test.ko loaded via: doas insmod /workdir/lockdep_test.ko
+# insmod exit: 0
+
+[   58.561151] WARNING: possible circular locking dependency detected
+[   58.561754] 6.18.16 #1 Tainted: G           O       
+[   58.562243] ------------------------------------------------------
+[   58.562853] insmod/1086 is trying to acquire lock:
+[   58.563332] ffffffffc0208150 (lock_a){+.+.}-{4:4}, at: lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.564202] 
+[   58.564202] but task is already holding lock:
+[   58.564779] ffffffffc0208090 (lock_b){+.+.}-{4:4}, at: lockdep_test_init+0x46/0xff0 [lockdep_test]
+[   58.565640] 
+[   58.565640] which lock already depends on the new lock.
+[   58.566437] 
+[   58.566437] the existing dependency chain (in reverse order) is:
+[   58.567162] 
+[   58.567162] -> #1 (lock_b){+.+.}-{4:4}:
+[   58.567691]        __mutex_lock+0x196/0x1560
+[   58.568132]        lockdep_test_init+0x20/0xff0 [lockdep_test]
+[   58.568790]        do_one_initcall+0xcd/0x3e0
+[   58.569701]        load_module+0x6a48/0x7b00
+[   58.572645] 
+[   58.572645] -> #0 (lock_a){+.+.}-{4:4}:
+[   58.573177]        __lock_acquire+0x1087/0x17a0
+[   58.573636]        lock_acquire+0x150/0x2e0
+[   58.574096]        __mutex_lock+0x196/0x1560
+[   58.574540]        lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.575574]        do_init_module+0x27c/0x7d0
+[   58.576066]        load_module+0x6a48/0x7b00
+[   58.578936] 
+[   58.578936] other info that might help us debug this:
+[   58.579718]  Possible unsafe locking scenario:
+[   58.580295]        CPU0                    CPU1
+[   58.581193]   lock(lock_b);
+[   58.581481]                                lock(lock_a);
+[   58.582009]                                lock(lock_b);
+[   58.582535]   lock(lock_a);
+[   58.582822] 
+[   58.582822]  *** DEADLOCK ***
+[   58.583381] 1 lock held by insmod/1086:
+[   58.583747]  #0: ffffffffc0208090 (lock_b){+.+.}-{4:4}, at: lockdep_test_init+0x46/0xff0 [lockdep_test]
+[   58.584589] 
+[   58.585004] CPU: 0 UID: 0 PID: 1086 Comm: insmod Tainted: G           O        6.18.16 #1 PREEMPT(voluntary) 
+[   58.585008] Tainted: [O]=OOT_MODULE

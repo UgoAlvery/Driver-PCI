@@ -1,0 +1,37 @@
+# KASAN proof — extracted from dmesg during first boot session (before reboot)
+# kasan_test.ko loaded via: doas insmod /workdir/kasan_test.ko
+# insmod exit: 0
+
+[  238.161090] BUG: KASAN: slab-out-of-bounds in kasan_test_init+0x7d/0xff0 [kasan_test]
+[  238.161095] Write of size 1 at addr ffff888106ede870 by task insmod/1120
+[  238.161098] 
+[  238.161102] CPU: 0 UID: 0 PID: 1120 Comm: insmod Tainted: G           O        6.18.16 #1 PREEMPT(voluntary) 
+[  238.161105] Tainted: [O]=OOT_MODULE
+[  238.161106] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[  238.161108] Call Trace:
+[  238.161109]  <TASK>
+[  238.161110]  dump_stack_lvl+0x66/0xa0
+[  238.161125]  print_report+0xd0/0x660
+[  238.161129]  ? kasan_test_init+0x7d/0xff0 [kasan_test]
+[  238.161131]  ? __virt_addr_valid+0x208/0x3f0
+[  238.161135]  ? kasan_test_init+0x7d/0xff0 [kasan_test]
+[  238.161137]  kasan_report+0xe4/0x120
+[  238.161140]  ? kasan_test_init+0x7d/0xff0 [kasan_test]
+[  238.161143]  ? __pfx_kasan_test_init+0x10/0x10 [kasan_test]
+[  238.161145]  kasan_test_init+0x7d/0xff0 [kasan_test]
+[  238.161153]  do_init_module+0x27c/0x7d0
+[  238.161165]  load_module+0x6a48/0x7b00
+[  238.161186]  init_module_from_file+0xe3/0x150
+[  238.161191]  idempotent_init_module+0x221/0x760
+[  238.161195]  __x64_sys_finit_module+0xba/0x120
+[  238.161210]  do_syscall_64+0xbb/0x380
+[  238.161213]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[  238.161273] The buggy address belongs to the object at ffff888106ede860
+[  238.161273]  which belongs to the cache kmalloc-16 of size 16
+[  238.161275] The buggy address is located 0 bytes to the right of
+[  238.161275]  allocated 16-byte region [ffff888106ede860, ffff888106ede870)
+[  238.161295] Memory state around the buggy address:
+[  238.161299] >ffff888106ede800: fa fb fc fc fa fb fc fc fa fb fc fc 00 00 fc fc
+[  238.161301]                                                              ^
+[  238.161306] ==================================================================
+[  238.161308] Disabling lock debugging due to kernel taint

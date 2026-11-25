@@ -1,0 +1,42 @@
+# Test Results — 2026-11-13
+# Debug kernel: Linux 6.18.16, KASAN+lockdep+kmemleak
+# Two EDU devices, all tests run via trainee@localhost:2222
+
+=== Basic functionality ===
+[PASS] device node edu-fact0 exists
+[PASS] device node edu-fact1 exists
+[PASS] 8! == 40320
+[PASS] 0! == 1
+[PASS] N=13 rejected (overflow guard)
+[PASS] N=-1 rejected (input validation)
+[PASS] irq_count=3 (sysfs introspection)
+[PASS] DMA round-trip data integrity (256 bytes)
+[PASS] module reload: device present (IDA minor reuse)
+[PASS] DMA concurrent same device
+[PASS] module unload
+
+=== Two-device concurrent tests ===
+[PASS] concurrent factorial two devices (20 iterations each)
+[PASS] concurrent DMA two devices (10 iterations each)
+[PASS] 10 load/unload cycles, IDA minor reused
+[PASS] IRQ under load (50 factorials each device concurrently)
+
+=== Memory safety ===
+[PASS] kmemleak: no leaks (scan via /sys/kernel/debug/kmemleak as root)
+
+=== Final unload ===
+[PASS] final unload
+
+====================
+17 passed, 0 failed
+====================
+
+=== KASAN/lockdep grep on edu driver ===
+[   22.484354] kmemleak: Kernel memory leak detector initialized
+[   22.484363] kmemleak: Automatic memory scanning thread started
+[   58.561151] WARNING: possible circular locking dependency detected
+  -> This report is from lockdep_test.ko (proof module), NOT from edu driver.
+     Timestamp 58s = module load time for lockdep_test.
+     Lock names: lock_a, lock_b (from lockdep_test.c), not from edu_char.c or edu_pci.c.
+
+No KASAN, lockdep, or kmemleak reports from the edu driver on the exercised paths.

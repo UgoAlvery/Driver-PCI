@@ -52,14 +52,15 @@ int main(int argc, char **argv)
 	}
 
 	/* Map the DMA buffer */
-	map = mmap(NULL, EDU_DMA_BUF_SIZE, PROT_READ | PROT_WRITE,
-		   MAP_SHARED, fd, 0);
+	map = mmap(NULL, EDU_DMA_BUF_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
+		   fd, 0);
 	if (map == MAP_FAILED) {
 		perror("mmap");
 		close(fd);
 		return 2;
 	}
-	printf("OK: mmap succeeded (addr=%p, size=%d)\n", map, EDU_DMA_BUF_SIZE);
+	printf("OK: mmap succeeded (addr=%p, size=%d)\n", map,
+	       EDU_DMA_BUF_SIZE);
 
 	/* Write a distinctive pattern into the mapped region */
 	for (i = 0; i < EDU_DMA_BUF_SIZE; i++)

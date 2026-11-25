@@ -1,0 +1,956 @@
+[    0.000000] Linux version 6.18.16 (whitepony@DESKTOP) (gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP PREEMPT_DYNAMIC Fri Nov 13 14:51:11 CET 2026
+[    0.000000] Command line: root=/dev/sda3 rw console=ttyS0,115200 nokaslr
+[    0.000000] x86/CPU: Model not found in latest microcode list
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000bffdefff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000bffdf000-0x00000000bfffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] APIC: Static calls initialized
+[    0.000000] SMBIOS 3.0.0 present.
+[    0.000000] DMI: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[    0.000000] DMI: Memory slots populated: 1/1
+[    0.000000] Hypervisor detected: KVM
+[    0.000000] last_pfn = 0xbffdf max_arch_pfn = 0x400000000
+[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+[    0.000001] kvm-clock: using sched offset of 297434030441 cycles
+[    0.000003] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[    0.000008] tsc: Detected 2803.200 MHz processor
+[    0.000448] e820: update [mem 0x00000000-0x00000fff] usable ==> reserved
+[    0.000450] e820: remove [mem 0x000a0000-0x000fffff] usable
+[    0.000454] last_pfn = 0x140000 max_arch_pfn = 0x400000000
+[    0.000536] MTRR map: 4 entries (3 fixed + 1 variable; max 19), built from 8 variable MTRRs
+[    0.000540] x86/PAT: Configuration [0-7]: WB  WC  UC- UC  WB  WP  UC- WT  
+[    0.000680] last_pfn = 0xbffdf max_arch_pfn = 0x400000000
+[    0.005966] found SMP MP-table at [mem 0x000f5460-0x000f546f]
+[    0.006309] ACPI: Early table checksum verification disabled
+[    0.006313] ACPI: RSDP 0x00000000000F5250 000014 (v00 BOCHS )
+[    0.006330] ACPI: RSDT 0x00000000BFFE1CCB 000034 (v01 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006336] ACPI: FACP 0x00000000BFFE1B77 000074 (v01 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006342] ACPI: DSDT 0x00000000BFFE0040 001B37 (v01 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006346] ACPI: FACS 0x00000000BFFE0000 000040
+[    0.006348] ACPI: APIC 0x00000000BFFE1BEB 000080 (v03 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006352] ACPI: HPET 0x00000000BFFE1C6B 000038 (v01 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006355] ACPI: WAET 0x00000000BFFE1CA3 000028 (v01 BOCHS  BXPC     00000001 BXPC 00000001)
+[    0.006357] ACPI: Reserving FACP table memory at [mem 0xbffe1b77-0xbffe1bea]
+[    0.006359] ACPI: Reserving DSDT table memory at [mem 0xbffe0040-0xbffe1b76]
+[    0.006360] ACPI: Reserving FACS table memory at [mem 0xbffe0000-0xbffe003f]
+[    0.006361] ACPI: Reserving APIC table memory at [mem 0xbffe1beb-0xbffe1c6a]
+[    0.006361] ACPI: Reserving HPET table memory at [mem 0xbffe1c6b-0xbffe1ca2]
+[    0.006362] ACPI: Reserving WAET table memory at [mem 0xbffe1ca3-0xbffe1cca]
+[    0.006941] No NUMA configuration found
+[    0.006942] Faking a node at [mem 0x0000000000000000-0x000000013fffffff]
+[    0.006945] NODE_DATA(0) allocated [mem 0x13fff9600-0x13fffcfff]
+[    0.006969] Zone ranges:
+[    0.006970]   DMA      [mem 0x0000000000001000-0x0000000000ffffff]
+[    0.006971]   DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
+[    0.006973]   Normal   [mem 0x0000000100000000-0x000000013fffffff]
+[    0.006974] Movable zone start for each node
+[    0.006975] Early memory node ranges
+[    0.006975]   node   0: [mem 0x0000000000001000-0x000000000009efff]
+[    0.006977]   node   0: [mem 0x0000000000100000-0x00000000bffdefff]
+[    0.006978]   node   0: [mem 0x0000000100000000-0x000000013fffffff]
+[    0.006979] Initmem setup node 0 [mem 0x0000000000001000-0x000000013fffffff]
+[    0.006998] On node 0, zone DMA: 1 pages in unavailable ranges
+[    0.007092] On node 0, zone DMA: 97 pages in unavailable ranges
+[    0.030716] On node 0, zone Normal: 33 pages in unavailable ranges
+[    0.165729] KernelAddressSanitizer initialized (generic)
+[    0.166658] ACPI: PM-Timer IO Port: 0x608
+[    0.166681] ACPI: LAPIC_NMI (acpi_id[0xff] dfl dfl lint[0x1])
+[    0.166745] IOAPIC[0]: apic_id 0, version 17, address 0xfec00000, GSI 0-23
+[    0.166749] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+[    0.166751] ACPI: INT_SRC_OVR (bus 0 bus_irq 5 global_irq 5 high level)
+[    0.166752] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+[    0.166753] ACPI: INT_SRC_OVR (bus 0 bus_irq 10 global_irq 10 high level)
+[    0.166754] ACPI: INT_SRC_OVR (bus 0 bus_irq 11 global_irq 11 high level)
+[    0.166758] ACPI: Using ACPI (MADT) for SMP configuration information
+[    0.166760] ACPI: HPET id: 0x8086a201 base: 0xfed00000
+[    0.166767] CPU topo: Max. logical packages:   1
+[    0.166768] CPU topo: Max. logical dies:       1
+[    0.166769] CPU topo: Max. dies per package:   1
+[    0.166771] CPU topo: Max. threads per core:   1
+[    0.166772] CPU topo: Num. cores per package:     2
+[    0.166773] CPU topo: Num. threads per package:   2
+[    0.166773] CPU topo: Allowing 2 present CPUs plus 0 hotplug CPUs
+[    0.166806] kvm-guest: APIC: eoi() replaced with kvm_guest_apic_eoi_write()
+[    0.166843] PM: hibernation: Registered nosave memory: [mem 0x00000000-0x00000fff]
+[    0.166845] PM: hibernation: Registered nosave memory: [mem 0x0009f000-0x000fffff]
+[    0.166847] PM: hibernation: Registered nosave memory: [mem 0xbffdf000-0xffffffff]
+[    0.166849] [mem 0xc0000000-0xfeffbfff] available for PCI devices
+[    0.166851] Booting paravirtualized kernel on KVM
+[    0.166853] clocksource: refined-jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1910969940391419 ns
+[    0.178651] setup_percpu: NR_CPUS:64 nr_cpumask_bits:2 nr_cpu_ids:2 nr_node_ids:1
+[    0.181085] percpu: Embedded 514 pages/cpu s2067160 r8192 d29992 u4194304
+[    0.181094] pcpu-alloc: s2067160 r8192 d29992 u4194304 alloc=2*2097152
+[    0.181097] pcpu-alloc: [0] 0 [0] 1 
+[    0.181146] Kernel command line: root=/dev/sda3 rw console=ttyS0,115200 nokaslr
+[    0.181182] Unknown kernel command line parameters "nokaslr", will be passed to user space.
+[    0.181187] printk: log buffer data + meta data: 262144 + 917504 = 1179648 bytes
+[    0.181674] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.181844] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.181968] software IO TLB: area num 2.
+[    0.202811] Fallback order for Node 0: 0 
+[    0.202817] Built 1 zonelists, mobility grouping on.  Total pages: 1048445
+[    0.202819] Policy zone: Normal
+[    0.202822] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.202824] stackdepot: allocating hash table via alloc_large_system_hash
+[    0.202829] stackdepot hash table entries: 1048576 (order: 12, 16777216 bytes, linear)
+[    0.205636] stackdepot: allocating space for 8192 stack pools via memblock
+[    0.241785] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=2, Nodes=1
+[    0.241941] Kernel/User page tables isolation: enabled
+[    0.244219] Dynamic Preempt: voluntary
+[    0.244955] Running RCU self tests
+[    0.244956] Running RCU synchronous self tests
+[    0.244957] rcu: Preemptible hierarchical RCU implementation.
+[    0.244958] rcu: 	RCU event tracing is enabled.
+[    0.244959] rcu: 	RCU lockdep checking is enabled.
+[    0.244959] rcu: 	RCU restricting CPUs from NR_CPUS=64 to nr_cpu_ids=2.
+[    0.244961] 	Trampoline variant of Tasks RCU enabled.
+[    0.244962] 	Tracing variant of Tasks RCU enabled.
+[    0.244963] rcu: RCU calculated value of scheduler-enlistment delay is 100 jiffies.
+[    0.244964] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=2
+[    0.245102] Running RCU synchronous self tests
+[    0.245113] RCU Tasks: Setting shift to 1 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=2.
+[    0.245121] RCU Tasks Trace: Setting shift to 1 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=2.
+[    0.291587] NR_IRQS: 4352, nr_irqs: 440, preallocated irqs: 16
+[    0.292206] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.299553] Console: colour VGA+ 80x25
+[    0.299672] printk: legacy console [ttyS0] enabled
+[    0.415302] Lock dependency validator: Copyright (c) 2006 Red Hat, Inc., Ingo Molnar
+[    0.416446] ... MAX_LOCKDEP_SUBCLASSES:  8
+[    0.417051] ... MAX_LOCK_DEPTH:          48
+[    0.417666] ... MAX_LOCKDEP_KEYS:        8192
+[    0.418319] ... CLASSHASH_SIZE:          4096
+[    0.418960] ... MAX_LOCKDEP_ENTRIES:     32768
+[    0.419619] ... MAX_LOCKDEP_CHAINS:      65536
+[    0.420280] ... CHAINHASH_SIZE:          32768
+[    0.420974]  memory used by lock dependency info: 6941 kB
+[    0.421769]  memory used for stack traces: 4224 kB
+[    0.422472]  per task-struct memory footprint: 2688 bytes
+[    0.423426] ACPI: Core revision 20250807
+[    0.424774] clocksource: hpet: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604467 ns
+[    0.426338] APIC: Switch to symmetric I/O mode setup
+[    0.427480] x2apic enabled
+[    0.428413] APIC: Switched APIC routing to: physical x2apic
+[    0.431676] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+[    0.432627] clocksource: tsc-early: mask: 0xffffffffffffffff max_cycles: 0x28680fa287f, max_idle_ns: 440795281151 ns
+[    0.434224] Calibrating delay loop (skipped) preset value.. 5606.40 BogoMIPS (lpj=2803200)
+[    0.435667] Last level iTLB entries: 4KB 0, 2MB 0, 4MB 0
+[    0.436215] Last level dTLB entries: 4KB 0, 2MB 0, 4MB 0, 1GB 0
+[    0.437224] mitigations: Enabled attack vectors: user_kernel, user_user, SMT mitigations: auto
+[    0.438215] Speculative Store Bypass: Vulnerable
+[    0.439216] Spectre V2 : Mitigation: Retpolines
+[    0.440217] ITS: Mitigation: Aligned branch/return thunks
+[    0.441214] MDS: Vulnerable: Clear CPU buffers attempted, no microcode
+[    0.442215] Spectre V1 : Mitigation: usercopy/swapgs barriers and __user pointer sanitization
+[    0.443217] Spectre V2 : Spectre v2 / SpectreRSB: Filling RSB on context switch and VMEXIT
+[    0.444216] active return thunk: its_return_thunk
+[    0.444930] x86/fpu: x87 FPU will use FXSAVE
+[    0.476081] Freeing SMP alternatives memory: 48K
+[    0.476224] pid_max: default: 32768 minimum: 301
+[    0.477677] LSM: initializing lsm=capability,selinux
+[    0.478359] SELinux:  Initializing.
+[    0.480820] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.481241] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.486529] Running RCU synchronous self tests
+[    0.487217] Running RCU synchronous self tests
+[    0.590437] smpboot: CPU0: Intel QEMU Virtual CPU version 2.5+ (family: 0xf, model: 0x6b, stepping: 0x1)
+[    0.594154] Performance Events: unsupported Netburst CPU model 107 no PMU driver, software events only.
+[    0.594274] signal: max sigframe size: 1440
+[    0.595493] rcu: Hierarchical SRCU implementation.
+[    0.596216] rcu: 	Max phase no-delay instances is 400.
+[    0.597670] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.607703] smp: Bringing up secondary CPUs ...
+[    0.609518] smpboot: x86: Booting SMP configuration:
+[    0.610237] .... node  #0, CPUs:      #1
+[    0.612451] smp: Brought up 1 node, 2 CPUs
+[    0.614215] smpboot: Total of 2 processors activated (11212.80 BogoMIPS)
+[    0.616912] Memory: 3373576K/4193780K available (53927K kernel code, 9862K rwdata, 12328K rodata, 8244K init, 17996K bss, 812712K reserved, 0K cma-reserved)
+[    0.620383] devtmpfs: initialized
+[    0.629152] Running RCU synchronous self tests
+[    0.629261] Running RCU synchronous self tests
+[    0.631239] Running RCU Tasks wait API self tests
+[    0.632397] Running RCU Tasks Trace wait API self tests
+[    0.646232] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+[    0.647276] posixtimers hash table entries: 1024 (order: 5, 81920 bytes, linear)
+[    0.648264] futex hash table entries: 512 (65536 bytes on 1 NUMA nodes, total 64 KiB, linear).
+[    0.651065] PM: RTC time: 13:58:21, date: 2026-11-13
+[    0.653151] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.656738] audit: initializing netlink subsys (disabled)
+[    0.658222] Callback from call_rcu_tasks_trace() invoked.
+[    0.659241] audit: type=2000 audit(1794578301.858:1): state=initialized audit_enabled=0 res=1
+[    0.660671] thermal_sys: Registered thermal governor 'step_wise'
+[    0.661260] cpuidle: using governor menu
+[    0.664350] PCI: Using configuration type 1 for base access
+[    0.665723] kprobes: kprobe jump-optimization is enabled. All kprobes are optimized if possible.
+[    0.669409] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.670223] HugeTLB: 28 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.673812] ACPI: Added _OSI(Module Device)
+[    0.674219] ACPI: Added _OSI(Processor Device)
+[    0.675217] ACPI: Added _OSI(Processor Aggregator Device)
+[    0.759245] ACPI: 1 ACPI AML tables successfully acquired and loaded
+[    0.777100] ACPI: Interpreter enabled
+[    0.779295] ACPI: PM: (supports S0 S3 S4 S5)
+[    0.780224] ACPI: Using IOAPIC for interrupt routing
+[    0.781543] PCI: Using host bridge windows from ACPI; if necessary, use "pci=nocrs" and report a bug
+[    0.782216] PCI: Using E820 reservations for host bridge windows
+[    0.787200] ACPI: Enabled 2 GPEs in block 00 to 0F
+[    0.838323] Callback from call_rcu_tasks() invoked.
+[    0.946597] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
+[    0.947271] acpi PNP0A03:00: _OSC: OS supports [ASPM ClockPM Segments MSI HPX-Type3]
+[    0.948215] acpi PNP0A03:00: _OSC: not requesting OS control; OS requires [ExtendedConfig ASPM ClockPM MSI]
+[    0.949773] acpi PNP0A03:00: fail to add MMCONFIG information, can't access extended configuration space under this bridge
+[    0.952159] PCI host bridge to bus 0000:00
+[    0.952462] pci_bus 0000:00: root bus resource [io  0x0000-0x0cf7 window]
+[    0.953228] pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
+[    0.954227] pci_bus 0000:00: root bus resource [mem 0x000a0000-0x000bffff window]
+[    0.955241] pci_bus 0000:00: root bus resource [mem 0xc0000000-0xfebfffff window]
+[    0.956229] pci_bus 0000:00: root bus resource [mem 0x140000000-0x1bfffffff window]
+[    0.957233] pci_bus 0000:00: root bus resource [bus 00-ff]
+[    0.958372] pci 0000:00:00.0: [8086:1237] type 00 class 0x060000 conventional PCI endpoint
+[    0.964122] pci 0000:00:01.0: [8086:7000] type 00 class 0x060100 conventional PCI endpoint
+[    0.968093] pci 0000:00:01.1: [8086:7010] type 00 class 0x010180 conventional PCI endpoint
+[    0.969219] pci 0000:00:01.1: BAR 4 [io  0xc160-0xc16f]
+[    0.970151] pci 0000:00:01.1: BAR 0 [io  0x01f0-0x01f7]: legacy IDE quirk
+[    0.970216] pci 0000:00:01.1: BAR 1 [io  0x03f6]: legacy IDE quirk
+[    0.971215] pci 0000:00:01.1: BAR 2 [io  0x0170-0x0177]: legacy IDE quirk
+[    0.972214] pci 0000:00:01.1: BAR 3 [io  0x0376]: legacy IDE quirk
+[    0.977370] pci 0000:00:01.3: [8086:7113] type 00 class 0x068000 conventional PCI endpoint
+[    0.979260] pci 0000:00:01.3: quirk: [io  0x0600-0x063f] claimed by PIIX4 ACPI
+[    0.980228] pci 0000:00:01.3: quirk: [io  0x0700-0x070f] claimed by PIIX4 SMB
+[    0.984589] pci 0000:00:02.0: [1234:1111] type 00 class 0x030000 conventional PCI endpoint
+[    0.987768] pci 0000:00:02.0: BAR 0 [mem 0xfd000000-0xfdffffff pref]
+[    0.988240] pci 0000:00:02.0: BAR 2 [mem 0xfeb94000-0xfeb94fff]
+[    0.989263] pci 0000:00:02.0: ROM [mem 0xfeb80000-0xfeb8ffff pref]
+[    0.991334] pci 0000:00:02.0: Video device with shadowed ROM at [mem 0x000c0000-0x000dffff]
+[    0.996003] pci 0000:00:03.0: [1af4:1000] type 00 class 0x020000 conventional PCI endpoint
+[    0.997229] pci 0000:00:03.0: BAR 0 [io  0xc140-0xc15f]
+[    0.998270] pci 0000:00:03.0: BAR 4 [mem 0xfe000000-0xfe003fff 64bit pref]
+[    0.999226] pci 0000:00:03.0: ROM [mem 0xfeb00000-0xfeb7ffff pref]
+[    1.057110] pci 0000:00:04.0: [1b36:000d] type 00 class 0x0c0330 conventional PCI endpoint
+[    1.057999] pci 0000:00:04.0: BAR 0 [mem 0xfeb90000-0xfeb93fff 64bit]
+[    1.120816] pci 0000:00:05.0: [1b36:0005] type 00 class 0x00ff00 conventional PCI endpoint
+[    1.123233] pci 0000:00:05.0: BAR 0 [mem 0xfeb95000-0xfeb95fff]
+[    1.124147] pci 0000:00:05.0: BAR 1 [io  0xc000-0xc0ff]
+[    1.180481] pci 0000:00:06.0: [1234:11e8] type 00 class 0x00ff00 conventional PCI endpoint
+[    1.182641] pci 0000:00:06.0: BAR 0 [mem 0xfe900000-0xfe9fffff]
+[    1.240314] pci 0000:00:07.0: [1234:11e8] type 00 class 0x00ff00 conventional PCI endpoint
+[    1.242228] pci 0000:00:07.0: BAR 0 [mem 0xfea00000-0xfeafffff]
+[    1.297699] pci 0000:00:08.0: [1af4:1009] type 00 class 0x000200 conventional PCI endpoint
+[    1.301240] pci 0000:00:08.0: BAR 0 [io  0xc100-0xc13f]
+[    1.302126] pci 0000:00:08.0: BAR 1 [mem 0xfeb96000-0xfeb96fff]
+[    1.302259] pci 0000:00:08.0: BAR 4 [mem 0xfe004000-0xfe007fff 64bit pref]
+[    1.373589] ACPI: PCI: Interrupt link LNKA configured for IRQ 10
+[    1.378497] ACPI: PCI: Interrupt link LNKB configured for IRQ 10
+[    1.383294] ACPI: PCI: Interrupt link LNKC configured for IRQ 11
+[    1.391307] ACPI: PCI: Interrupt link LNKD configured for IRQ 11
+[    1.393837] ACPI: PCI: Interrupt link LNKS configured for IRQ 9
+[    1.407442] iommu: Default domain type: Translated
+[    1.408216] iommu: DMA domain TLB invalidation policy: lazy mode
+[    1.412517] SCSI subsystem initialized
+[    1.413522] libata version 3.00 loaded.
+[    1.413967] ACPI: bus type USB registered
+[    1.414731] usbcore: registered new interface driver usbfs
+[    1.416455] usbcore: registered new interface driver hub
+[    1.417254] usbcore: registered new device driver usb
+[    1.418451] pps_core: LinuxPPS API ver. 1 registered
+[    1.419202] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    1.420280] PTP clock support registered
+[    1.423448] Advanced Linux Sound Architecture Driver Initialized.
+[    1.427954] NetLabel: Initializing
+[    1.428215] NetLabel:  domain hash size = 128
+[    1.428890] NetLabel:  protocols = UNLABELED CIPSOv4 CALIPSO
+[    1.430378] NetLabel:  unlabeled traffic allowed by default
+[    1.432401] PCI: Using ACPI for IRQ routing
+[    1.432990] PCI: pci_cache_line_size set to 64 bytes
+[    1.433216] e820: reserve RAM buffer [mem 0x0009fc00-0x0009ffff]
+[    1.433216] e820: reserve RAM buffer [mem 0xbffdf000-0xbfffffff]
+[    1.433874] pci 0000:00:02.0: vgaarb: setting as boot VGA device
+[    1.434212] pci 0000:00:02.0: vgaarb: bridge control possible
+[    1.434212] pci 0000:00:02.0: vgaarb: VGA device added: decodes=io+mem,owns=io+mem,locks=none
+[    1.436227] vgaarb: loaded
+[    1.437856] hpet: 3 channels of 0 reserved for per-cpu timers
+[    1.439248] hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+[    1.440016] hpet0: 3 comparators, 64-bit 100.000000 MHz counter
+[    1.445699] clocksource: Switched to clocksource kvm-clock
+[    1.448755] VFS: Disk quotas dquot_6.6.0
+[    1.449476] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    1.454022] pnp: PnP ACPI init
+[    1.456734] pnp 00:02: [dma 2]
+[    1.466427] pnp: PnP ACPI: found 6 devices
+[    1.508777] clocksource: acpi_pm: mask: 0xffffff max_cycles: 0xffffff, max_idle_ns: 2085701024 ns
+[    1.510648] NET: Registered PF_INET protocol family
+[    1.511719] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    1.516272] tcp_listen_portaddr_hash hash table entries: 2048 (order: 6, 163840 bytes, linear)
+[    1.517658] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    1.518927] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    1.520346] TCP bind hash table entries: 32768 (order: 11, 5242880 bytes, vmalloc hugepage)
+[    1.523366] TCP: Hash tables configured (established 32768 bind 32768)
+[    1.524653] UDP hash table entries: 2048 (order: 8, 622592 bytes, linear)
+[    1.525963] UDP-Lite hash table entries: 2048 (order: 8, 622592 bytes, linear)
+[    1.527871] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    1.530905] RPC: Registered named UNIX socket transport module.
+[    1.531962] RPC: Registered udp transport module.
+[    1.532712] RPC: Registered tcp transport module.
+[    1.533576] RPC: Registered tcp-with-tls transport module.
+[    1.534445] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    1.537833] pci_bus 0000:00: resource 4 [io  0x0000-0x0cf7 window]
+[    1.539022] pci_bus 0000:00: resource 5 [io  0x0d00-0xffff window]
+[    1.539967] pci_bus 0000:00: resource 6 [mem 0x000a0000-0x000bffff window]
+[    1.541043] pci_bus 0000:00: resource 7 [mem 0xc0000000-0xfebfffff window]
+[    1.542084] pci_bus 0000:00: resource 8 [mem 0x140000000-0x1bfffffff window]
+[    1.544245] pci 0000:00:01.0: PIIX3: Enabling Passive Release
+[    1.545173] pci 0000:00:00.0: Limiting direct PCI/PCI transfers
+[    5.183259] ACPI: \_SB_.LNKD: Enabled at IRQ 11
+[    8.819964] pci 0000:00:04.0: quirk_usb_early_handoff+0x0/0xbc0 took 7103304 usecs
+[    8.822112] PCI: CLS 0 bytes, default 64
+[    8.824086] PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
+[    8.825130] software IO TLB: mapped [mem 0x00000000bbfdf000-0x00000000bffdf000] (64MB)
+[    8.827223] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x28680fa287f, max_idle_ns: 440795281151 ns
+[    8.838305] Initialise system trusted keyrings
+[    8.839583] workingset: timestamp_bits=56 max_order=20 bucket_order=0
+[    8.844884] NFS: Registering the id_resolver key type
+[    8.845874] Key type id_resolver registered
+[    8.846580] Key type id_legacy registered
+[    8.848069] 9p: Installing v9fs 9p2000 file system support
+[    8.861458] Key type asymmetric registered
+[    8.862395] Asymmetric key parser 'x509' registered
+[    8.863498] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 251)
+[    8.864880] io scheduler mq-deadline registered
+[    8.865663] io scheduler kyber registered
+[    8.868423] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+[    8.870791] ACPI: button: Power Button [PWRF]
+[   13.255337] ACPI: \_SB_.LNKC: Enabled at IRQ 10
+[   17.629244] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[   17.634985] 00:04: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+[   17.646654] Non-volatile memory driver v1.3
+[   17.647423] Linux agpgart interface v0.103
+[   17.649292] ACPI: bus type drm_connector registered
+[   17.687566] loop: module loaded
+[   17.699090] scsi host0: ata_piix
+[   17.702164] scsi host1: ata_piix
+[   17.704278] ata1: PATA max MWDMA2 cmd 0x1f0 ctl 0x3f6 bmdma 0xc160 irq 14 lpm-pol 0
+[   17.705536] ata2: PATA max MWDMA2 cmd 0x170 ctl 0x376 bmdma 0xc168 irq 15 lpm-pol 0
+[   17.720059] e100: Intel(R) PRO/100 Network Driver
+[   17.720882] e100: Copyright(c) 1999-2006 Intel Corporation
+[   17.723367] e1000: Intel(R) PRO/1000 Network Driver
+[   17.724245] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[   17.725537] e1000e: Intel(R) PRO/1000 Network Driver
+[   17.726292] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[   17.727483] sky2: driver version 1.30
+[   17.863391] ata2: found unknown device (class 0)
+[   17.864673] ata1: found unknown device (class 0)
+[   17.866614] ata1.00: ATA-7: QEMU HARDDISK, 2.5+, max UDMA/100
+[   17.867528] ata1.00: 16777216 sectors, multi 16: LBA48 
+[   17.868597] ata2.00: ATAPI: QEMU DVD-ROM, 2.5+, max UDMA/100
+[   17.872302] scsi 0:0:0:0: Direct-Access     ATA      QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5
+[   17.878030] sd 0:0:0:0: [sda] 16777216 512-byte logical blocks: (8.59 GB/8.00 GiB)
+[   17.879604] sd 0:0:0:0: Attached scsi generic sg0 type 0
+[   17.881052] sd 0:0:0:0: [sda] Write Protect is off
+[   17.881808] sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+[   17.883424] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+[   17.885170] scsi 1:0:0:0: CD-ROM            QEMU     QEMU DVD-ROM     2.5+ PQ: 0 ANSI: 5
+[   17.886934] sd 0:0:0:0: [sda] Preferred minimum I/O size 512 bytes
+[   17.902838]  sda: sda1 sda2 sda3
+[   17.906600] sd 0:0:0:0: [sda] Attached SCSI disk
+[   17.908317] sr 1:0:0:0: [sr0] scsi3-mmc drive: 4x/4x cd/rw xa/form2 tray
+[   17.909374] cdrom: Uniform CD-ROM driver Revision: 3.20
+[   17.928614] sr 1:0:0:0: Attached scsi CD-ROM sr0
+[   17.930136] sr 1:0:0:0: Attached scsi generic sg1 type 5
+[   22.166197] xhci_hcd 0000:00:04.0: xHCI Host Controller
+[   22.168482] xhci_hcd 0000:00:04.0: new USB bus registered, assigned bus number 1
+[   22.171232] xhci_hcd 0000:00:04.0: hcc params 0x00087001 hci version 0x100 quirks 0x0000000000000010
+[   22.177895] xhci_hcd 0000:00:04.0: xHCI Host Controller
+[   22.179751] xhci_hcd 0000:00:04.0: new USB bus registered, assigned bus number 2
+[   22.180989] xhci_hcd 0000:00:04.0: Host supports USB 3.0 SuperSpeed
+[   22.183153] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.18
+[   22.184446] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[   22.185562] usb usb1: Product: xHCI Host Controller
+[   22.186356] usb usb1: Manufacturer: Linux 6.18.16 xhci-hcd
+[   22.187214] usb usb1: SerialNumber: 0000:00:04.0
+[   22.191284] hub 1-0:1.0: USB hub found
+[   22.192189] hub 1-0:1.0: 4 ports detected
+[   22.198098] usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+[   22.200213] usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 6.18
+[   22.201610] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[   22.202716] usb usb2: Product: xHCI Host Controller
+[   22.203457] usb usb2: Manufacturer: Linux 6.18.16 xhci-hcd
+[   22.204324] usb usb2: SerialNumber: 0000:00:04.0
+[   22.207584] hub 2-0:1.0: USB hub found
+[   22.208659] hub 2-0:1.0: 4 ports detected
+[   22.215190] usbcore: registered new interface driver usblp
+[   22.216385] usbcore: registered new interface driver usb-storage
+[   22.218746] i8042: PNP: PS/2 Controller [PNP0303:KBD,PNP0f13:MOU] at 0x60,0x64 irq 1,12
+[   22.221556] serio: i8042 KBD port at 0x60,0x64 irq 1
+[   22.222460] serio: i8042 AUX port at 0x60,0x64 irq 12
+[   22.226287] rtc_cmos 00:05: RTC can wake from S4
+[   22.229265] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
+[   22.232732] rtc_cmos 00:05: registered as rtc0
+[   22.233973] rtc_cmos 00:05: alarms up to one day, y3k, 242 bytes nvram, hpet irqs
+[   22.237753] device-mapper: ioctl: 4.50.0-ioctl (2025-04-28) initialised: dm-devel@lists.linux.dev
+[   22.239575] intel_pstate: CPU model not supported
+[   22.240624] hid: raw HID events driver (C) Jiri Kosina
+[   22.246741] usbcore: registered new interface driver usbhid
+[   22.247624] usbhid: USB HID core driver
+[   22.252338] Initializing XFRM netlink socket
+[   22.253845] NET: Registered PF_INET6 protocol family
+[   22.258547] Segment Routing with IPv6
+[   22.259377] In-situ OAM (IOAM) with IPv6
+[   22.260303] sit: IPv6, IPv4 and MPLS over IPv4 tunneling driver
+[   22.264164] NET: Registered PF_PACKET protocol family
+[   22.265328] 9pnet: Installing 9P2000 support
+[   22.269367] Key type dns_resolver registered
+[   22.272630] IPI shorthand broadcast: enabled
+[   22.379970] sched_clock: Marking stable (22241015862, 137995383)->(22393943136, -14931891)
+[   22.384065] registered taskstats version 1
+[   22.384747] Loading compiled-in X.509 certificates
+[   22.434057] usb 1-1: new high-speed USB device number 2 using xhci_hcd
+[   22.483101] Demotion targets for Node 0: null
+[   22.484354] kmemleak: Kernel memory leak detector initialized (mem pool available: 15020)
+[   22.484363] kmemleak: Automatic memory scanning thread started
+[   22.487130] PM:   Magic number: 2:828:988
+[   22.487902] machinecheck machinecheck1: hash matches
+[   22.488863] netconsole: network logging started
+[   22.490610] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[   22.492879] kworker/u8:1 (60) used greatest stack depth: 28680 bytes left
+[   22.495767] Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[   22.497507] Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+[   22.499283] faux_driver regulatory: Direct firmware load for regulatory.db failed with error -2
+[   22.500255] ALSA device list:
+[   22.500817] cfg80211: failed to load regulatory.db
+[   22.501449]   No soundcards found.
+[   22.503626] check access for rdinit=/init failed: -2, ignoring
+[   22.565208] usb 1-1: New USB device found, idVendor=0627, idProduct=0001, bcdDevice= 0.00
+[   22.566262] usb 1-1: New USB device strings: Mfr=1, Product=3, SerialNumber=10
+[   22.567049] usb 1-1: Product: QEMU USB Tablet
+[   22.567484] usb 1-1: Manufacturer: QEMU
+[   22.567853] usb 1-1: SerialNumber: 28754-0000:00:04.0-1
+[   22.575663] input: QEMU QEMU USB Tablet as /devices/pci0000:00/0000:00:04.0/usb1/1-1/1-1:1.0/0003:0627:0001.0001/input/input4
+[   22.578810] hid-generic 0003:0627:0001.0001: input,hidraw0: USB HID v0.01 Mouse [QEMU QEMU USB Tablet] on usb-0000:00:04.0-1/input0
+[   22.659137] input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input3
+[   22.661334] md: Waiting for all devices to be available before autodetect
+[   22.663135] md: If you don't use raid, use raid=noautodetect
+[   22.664354] md: Autodetecting RAID arrays.
+[   22.664872] md: autorun ...
+[   22.665212] md: ... autorun DONE.
+[   22.844568] EXT4-fs (sda3): mounted filesystem e2d2b3d5-2512-4b9e-a24e-49fae4687389 r/w with ordered data mode. Quota mode: none.
+[   22.846125] VFS: Mounted root (ext4 filesystem) on device 8:3.
+[   22.847818] devtmpfs: mounted
+[   22.850196] Freeing unused kernel image (initmem) memory: 8244K
+[   22.851032] Write protecting the kernel read-only data: 69632k
+[   22.853215] Freeing unused kernel image (text/rodata gap) memory: 1368K
+[   22.854640] Freeing unused kernel image (rodata/data gap) memory: 2008K
+[   22.895179] x86/mm: Checked W+X mappings: passed, no W+X pages found.
+[   22.896035] x86/mm: Checking user space page tables
+[   22.935477] x86/mm: Checked W+X mappings: passed, no W+X pages found.
+[   22.936318] Run /sbin/init as init process
+[   22.936808]   with arguments:
+[   22.936810]     /sbin/init
+[   22.936812]     nokaslr
+[   22.936814]   with environment:
+[   22.936816]     HOME=/
+[   22.936817]     TERM=linux
+[   22.988708] init-early.sh (67) used greatest stack depth: 26296 bytes left
+[   23.006203] eval_ecolors (70) used greatest stack depth: 26280 bytes left
+[   23.062330] mountinfo (76) used greatest stack depth: 26216 bytes left
+[   23.124709] init.sh (68) used greatest stack depth: 25008 bytes left
+[   25.076225] block sr0: the capability attribute has been deprecated.
+[   27.375934] EXT4-fs (sda3): re-mounted e2d2b3d5-2512-4b9e-a24e-49fae4687389.
+[   27.394542] random: crng init done
+[   27.645128] Adding 960508k swap on /dev/sda2.  Priority:-2 extents:1 across:960508k 
+[   27.926330] EXT4-fs (sda1): mounted filesystem 215a300c-04e4-4e2d-b53d-01bdd243bed5 r/w with ordered data mode. Quota mode: none.
+[   33.587808] qemu-ga (1037) used greatest stack depth: 24856 bytes left
+[   58.558839] lockdep_test: loading out-of-tree module taints kernel.
+[   58.560314] 
+[   58.560532] ======================================================
+[   58.561151] WARNING: possible circular locking dependency detected
+[   58.561754] 6.18.16 #1 Tainted: G           O       
+[   58.562243] ------------------------------------------------------
+[   58.562853] insmod/1086 is trying to acquire lock:
+[   58.563332] ffffffffc0208150 (lock_a){+.+.}-{4:4}, at: lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.564202] 
+[   58.564202] but task is already holding lock:
+[   58.564779] ffffffffc0208090 (lock_b){+.+.}-{4:4}, at: lockdep_test_init+0x46/0xff0 [lockdep_test]
+[   58.565640] 
+[   58.565640] which lock already depends on the new lock.
+[   58.565640] 
+[   58.566437] 
+[   58.566437] the existing dependency chain (in reverse order) is:
+[   58.567162] 
+[   58.567162] -> #1 (lock_b){+.+.}-{4:4}:
+[   58.567691]        __mutex_lock+0x196/0x1560
+[   58.568132]        lockdep_test_init+0x20/0xff0 [lockdep_test]
+[   58.568790]        do_one_initcall+0xcd/0x3e0
+[   58.569261]        do_init_module+0x27c/0x7d0
+[   58.569701]        load_module+0x6a48/0x7b00
+[   58.570143]        init_module_from_file+0xe3/0x150
+[   58.570627]        idempotent_init_module+0x221/0x760
+[   58.571127]        __x64_sys_finit_module+0xba/0x120
+[   58.571669]        do_syscall_64+0xbb/0x380
+[   58.572095]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   58.572645] 
+[   58.572645] -> #0 (lock_a){+.+.}-{4:4}:
+[   58.573177]        __lock_acquire+0x1087/0x17a0
+[   58.573636]        lock_acquire+0x150/0x2e0
+[   58.574096]        __mutex_lock+0x196/0x1560
+[   58.574540]        lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.575130]        do_one_initcall+0xcd/0x3e0
+[   58.575574]        do_init_module+0x27c/0x7d0
+[   58.576066]        load_module+0x6a48/0x7b00
+[   58.576493]        init_module_from_file+0xe3/0x150
+[   58.576985]        idempotent_init_module+0x221/0x760
+[   58.577483]        __x64_sys_finit_module+0xba/0x120
+[   58.577979]        do_syscall_64+0xbb/0x380
+[   58.578394]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   58.578936] 
+[   58.578936] other info that might help us debug this:
+[   58.578936] 
+[   58.579718]  Possible unsafe locking scenario:
+[   58.579718] 
+[   58.580295]        CPU0                    CPU1
+[   58.580744]        ----                    ----
+[   58.581193]   lock(lock_b);
+[   58.581481]                                lock(lock_a);
+[   58.582009]                                lock(lock_b);
+[   58.582535]   lock(lock_a);
+[   58.582822] 
+[   58.582822]  *** DEADLOCK ***
+[   58.582822] 
+[   58.583381] 1 lock held by insmod/1086:
+[   58.583747]  #0: ffffffffc0208090 (lock_b){+.+.}-{4:4}, at: lockdep_test_init+0x46/0xff0 [lockdep_test]
+[   58.584589] 
+[   58.584589] stack backtrace:
+[   58.585004] CPU: 0 UID: 0 PID: 1086 Comm: insmod Tainted: G           O        6.18.16 #1 PREEMPT(voluntary) 
+[   58.585008] Tainted: [O]=OOT_MODULE
+[   58.585073] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   58.585074] Call Trace:
+[   58.585077]  <TASK>
+[   58.585079]  dump_stack_lvl+0x66/0xa0
+[   58.585084]  print_circular_bug+0x272/0x350
+[   58.585088]  check_noncircular+0x14e/0x170
+[   58.585091]  ? add_lock_to_list+0x2c/0x100
+[   58.585094]  __lock_acquire+0x1087/0x17a0
+[   58.585097]  lock_acquire+0x150/0x2e0
+[   58.585099]  ? lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.585105]  ? find_held_lock+0x32/0x90
+[   58.585107]  ? __pfx___might_resched+0x10/0x10
+[   58.585111]  ? lock_acquired+0x1b9/0x320
+[   58.585113]  __mutex_lock+0x196/0x1560
+[   58.585116]  ? lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.585118]  ? local_clock_noinstr+0xd/0xc0
+[   58.585120]  ? lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.585122]  ? __pfx___mutex_lock+0x10/0x10
+[   58.585124]  ? __pfx___mutex_unlock_slowpath+0x10/0x10
+[   58.585127]  ? __pfx_lockdep_test_init+0x10/0x10 [lockdep_test]
+[   58.585129]  ? lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.585131]  lockdep_test_init+0x54/0xff0 [lockdep_test]
+[   58.585133]  do_one_initcall+0xcd/0x3e0
+[   58.585137]  ? __pfx_do_one_initcall+0x10/0x10
+[   58.585139]  ? kasan_unpoison+0x27/0x60
+[   58.585143]  do_init_module+0x27c/0x7d0
+[   58.585147]  ? __pfx_do_init_module+0x10/0x10
+[   58.585148]  ? kfree+0x168/0x540
+[   58.585151]  ? __call_rcu_common.constprop.0+0x445/0x980
+[   58.585153]  ? load_module+0x6c4d/0x7b00
+[   58.585156]  load_module+0x6a48/0x7b00
+[   58.585158]  ? __pfx___up_read+0x10/0x10
+[   58.585162]  ? __pfx_load_module+0x10/0x10
+[   58.585164]  ? __pfx_selinux_kernel_load_from_file+0x10/0x10
+[   58.585168]  ? security_file_permission+0x29/0x40
+[   58.585171]  ? kernel_read_file+0x3fa/0x8f0
+[   58.585174]  ? __pfx_kernel_read_file+0x10/0x10
+[   58.585177]  ? init_module_from_file+0xe3/0x150
+[   58.585179]  init_module_from_file+0xe3/0x150
+[   58.585181]  ? __pfx_init_module_from_file+0x10/0x10
+[   58.585183]  ? __lock_acquire+0xcf0/0x17a0
+[   58.585186]  ? find_held_lock+0x32/0x90
+[   58.585187]  ? kvm_sched_clock_read+0x11/0x20
+[   58.585190]  ? local_clock_noinstr+0xd/0xc0
+[   58.585192]  ? local_clock+0x10/0x30
+[   58.585194]  ? lock_release+0x27c/0x370
+[   58.585195]  ? do_raw_spin_unlock+0x53/0x220
+[   58.585197]  idempotent_init_module+0x221/0x760
+[   58.585200]  ? cred_has_capability.isra.0+0x138/0x230
+[   58.585202]  ? __pfx_idempotent_init_module+0x10/0x10
+[   58.585204]  ? __pfx_cred_has_capability.isra.0+0x10/0x10
+[   58.585208]  __x64_sys_finit_module+0xba/0x120
+[   58.585210]  do_syscall_64+0xbb/0x380
+[   58.585213]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   58.585215] RIP: 0033:0x7fe06423d911
+[   58.585217] Code: 8b 7c 24 28 4d 89 c8 4c 89 4c 24 48 4c 8b 4c 24 60 48 89 54 24 18 48 8b 54 24 38 c7 44 24 08 08 00 00 00 48 89 4c 24 10 0f 05 <48> 89 c7 e8 c5 bf fe ff 48 83 c4 58 c3 41 57 41 56 49 89 d6 41 55
+[   58.585219] RSP: 002b:00007ffebd4ee5b0 EFLAGS: 00000202 ORIG_RAX: 0000000000000139
+[   58.585222] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fe06423d911
+[   58.585224] RDX: 0000000000000000 RSI: 00005581241dd9d4 RDI: 0000000000000003
+[   58.585225] RBP: 00007fe0640f6f80 R08: 0000000000000000 R09: 00007fe0640f6d70
+[   58.585226] R10: 0000000000000000 R11: 0000000000000202 R12: 00005581241dd9d4
+[   58.585227] R13: 00007fe0640f6f80 R14: 0000000000000000 R15: 0000000000000000
+[   58.585229]  </TASK>
+[  120.705376] ACPI: \_SB_.LNKB: Enabled at IRQ 10
+[  120.707223] edu-fact 0000:00:06.0: edu driver loaded
+[  122.681703] edu-fact 0000:00:07.0: edu driver loaded
+[  257.542897] edu-fact0 opened
+[  257.544719] edu-fact0 opened
+[  352.562222] edu-fact0 opened
+[  352.564787] edu-fact0 opened
+[  352.569721] edu-fact0 opened
+[  352.576513] edu-fact0 opened
+[  352.578607] edu-fact0 opened
+[  352.579650] edu-fact0 opened
+[  352.592531] edu-fact0 opened
+[  354.450765] edu-fact 0000:00:07.0: edu driver removed
+[  356.084490] edu-fact 0000:00:06.0: edu driver removed
+[  358.164666] edu-fact 0000:00:06.0: edu driver loaded
+[  360.139237] edu-fact 0000:00:07.0: edu driver loaded
+[  360.157265] edu-fact0 opened
+[  360.157269] edu-fact0 opened
+[  362.211036] edu-fact 0000:00:07.0: edu driver removed
+[  363.863965] edu-fact 0000:00:06.0: edu driver removed
+[  365.947623] edu-fact 0000:00:06.0: edu driver loaded
+[  367.937202] edu-fact 0000:00:07.0: edu driver loaded
+[  367.949437] edu-fact1 opened
+[  367.949640] edu-fact0 opened
+[  367.952574] edu-fact1 opened
+[  367.952895] edu-fact0 opened
+[  367.953288] edu-fact1 opened
+[  367.953723] edu-fact0 opened
+[  367.956223] edu-fact0 opened
+[  367.956231] edu-fact1 opened
+[  367.957108] edu-fact0 opened
+[  367.957959] edu-fact1 opened
+[  367.959544] edu-fact0 opened
+[  367.960632] edu-fact1 opened
+[  367.961180] edu-fact0 opened
+[  367.961392] edu-fact1 opened
+[  367.964164] edu-fact0 opened
+[  367.965346] edu-fact0 opened
+[  367.965831] edu-fact1 opened
+[  367.966842] edu-fact1 opened
+[  367.967627] edu-fact0 opened
+[  367.968377] edu-fact0 opened
+[  367.969626] edu-fact1 opened
+[  367.970370] edu-fact1 opened
+[  367.971073] edu-fact0 opened
+[  367.971987] edu-fact0 opened
+[  367.972938] edu-fact1 opened
+[  367.975968] edu-fact1 opened
+[  367.977011] edu-fact0 opened
+[  367.978148] edu-fact1 opened
+[  367.978387] edu-fact0 opened
+[  367.979073] edu-fact1 opened
+[  367.980694] edu-fact0 opened
+[  367.981646] edu-fact0 opened
+[  367.982132] edu-fact1 opened
+[  367.983248] edu-fact1 opened
+[  367.983838] edu-fact0 opened
+[  367.985822] edu-fact0 opened
+[  367.986780] edu-fact1 opened
+[  367.987848] edu-fact1 opened
+[  367.988934] edu-fact0 opened
+[  367.989977] edu-fact0 opened
+[  367.990063] edu-fact1 opened
+[  367.991882] edu-fact1 opened
+[  367.993298] edu-fact0 opened
+[  367.993880] edu-fact1 opened
+[  367.994092] edu-fact0 opened
+[  367.994780] edu-fact1 opened
+[  367.997945] edu-fact0 opened
+[  367.998003] edu-fact1 opened
+[  367.998728] edu-fact0 opened
+[  367.999274] edu-fact1 opened
+[  368.001583] edu-fact0 opened
+[  368.002320] edu-fact1 opened
+[  368.002925] edu-fact0 opened
+[  368.003139] edu-fact1 opened
+[  368.004991] edu-fact0 opened
+[  368.005797] edu-fact0 opened
+[  368.006062] edu-fact1 opened
+[  368.007059] edu-fact1 opened
+[  368.009214] edu-fact0 opened
+[  368.010001] edu-fact0 opened
+[  368.010164] edu-fact1 opened
+[  368.011203] edu-fact1 opened
+[  368.012209] edu-fact0 opened
+[  368.012965] edu-fact0 opened
+[  368.013390] edu-fact1 opened
+[  368.014232] edu-fact1 opened
+[  368.016292] edu-fact0 opened
+[  368.017327] edu-fact1 opened
+[  368.017491] edu-fact0 opened
+[  368.018286] edu-fact1 opened
+[  368.020120] edu-fact0 opened
+[  368.020724] edu-fact1 opened
+[  368.021336] edu-fact0 opened
+[  368.021446] edu-fact1 opened
+[  368.023457] edu-fact0 opened
+[  368.024187] edu-fact1 opened
+[  368.024231] edu-fact0 opened
+[  368.024965] edu-fact1 opened
+[  368.026751] edu-fact0 opened
+[  368.027131] edu-fact1 opened
+[  368.038992] edu-fact0 opened
+[  368.038994] edu-fact1 opened
+[  368.250259] edu-fact1 opened
+[  368.250401] edu-fact0 opened
+[  368.458536] edu-fact1 opened
+[  368.458538] edu-fact0 opened
+[  368.667264] edu-fact0 opened
+[  368.667270] edu-fact1 opened
+[  368.881545] edu-fact0 opened
+[  368.881561] edu-fact1 opened
+[  369.095936] edu-fact0 opened
+[  369.096052] edu-fact1 opened
+[  369.303681] edu-fact1 opened
+[  369.303900] edu-fact0 opened
+[  369.521103] edu-fact1 opened
+[  369.521122] edu-fact0 opened
+[  369.732942] edu-fact1 opened
+[  369.732987] edu-fact0 opened
+[  369.938784] edu-fact1 opened
+[  369.938788] edu-fact0 opened
+[  371.796923] edu-fact 0000:00:07.0: edu driver removed
+[  373.435253] edu-fact 0000:00:06.0: edu driver removed
+[  375.522836] edu-fact 0000:00:06.0: edu driver loaded
+[  377.506907] edu-fact 0000:00:07.0: edu driver loaded
+[  379.158478] edu-fact 0000:00:07.0: edu driver removed
+[  380.796027] edu-fact 0000:00:06.0: edu driver removed
+[  382.866573] edu-fact 0000:00:06.0: edu driver loaded
+[  384.828632] edu-fact 0000:00:07.0: edu driver loaded
+[  386.481096] edu-fact 0000:00:07.0: edu driver removed
+[  388.138338] edu-fact 0000:00:06.0: edu driver removed
+[  390.222331] edu-fact 0000:00:06.0: edu driver loaded
+[  392.190296] edu-fact 0000:00:07.0: edu driver loaded
+[  393.845402] edu-fact 0000:00:07.0: edu driver removed
+[  395.486209] edu-fact 0000:00:06.0: edu driver removed
+[  397.558014] edu-fact 0000:00:06.0: edu driver loaded
+[  399.539541] edu-fact 0000:00:07.0: edu driver loaded
+[  401.196131] edu-fact 0000:00:07.0: edu driver removed
+[  402.853937] edu-fact 0000:00:06.0: edu driver removed
+[  404.924326] edu-fact 0000:00:06.0: edu driver loaded
+[  406.895044] edu-fact 0000:00:07.0: edu driver loaded
+[  408.559352] edu-fact 0000:00:07.0: edu driver removed
+[  410.257917] edu-fact 0000:00:06.0: edu driver removed
+[  412.371683] edu-fact 0000:00:06.0: edu driver loaded
+[  414.437423] edu-fact 0000:00:07.0: edu driver loaded
+[  416.135791] edu-fact 0000:00:07.0: edu driver removed
+[  417.831505] edu-fact 0000:00:06.0: edu driver removed
+[  419.953129] edu-fact 0000:00:06.0: edu driver loaded
+[  421.989696] edu-fact 0000:00:07.0: edu driver loaded
+[  423.693847] edu-fact 0000:00:07.0: edu driver removed
+[  425.381517] edu-fact 0000:00:06.0: edu driver removed
+[  427.501720] edu-fact 0000:00:06.0: edu driver loaded
+[  429.555266] edu-fact 0000:00:07.0: edu driver loaded
+[  431.262426] edu-fact 0000:00:07.0: edu driver removed
+[  432.970492] edu-fact 0000:00:06.0: edu driver removed
+[  435.065971] edu-fact 0000:00:06.0: edu driver loaded
+[  437.125985] edu-fact 0000:00:07.0: edu driver loaded
+[  438.825990] edu-fact 0000:00:07.0: edu driver removed
+[  440.483257] edu-fact 0000:00:06.0: edu driver removed
+[  442.598018] edu-fact 0000:00:06.0: edu driver loaded
+[  444.585097] edu-fact 0000:00:07.0: edu driver loaded
+[  444.597996] edu-fact0 opened
+[  444.599093] edu-fact1 opened
+[  444.600896] edu-fact0 opened
+[  444.601666] edu-fact0 opened
+[  444.601922] edu-fact1 opened
+[  444.602828] edu-fact1 opened
+[  444.604184] edu-fact0 opened
+[  444.604923] edu-fact0 opened
+[  444.605738] edu-fact1 opened
+[  444.607204] edu-fact1 opened
+[  444.608226] edu-fact0 opened
+[  444.608959] edu-fact0 opened
+[  444.609142] edu-fact1 opened
+[  444.610371] edu-fact1 opened
+[  444.611586] edu-fact0 opened
+[  444.612432] edu-fact0 opened
+[  444.612846] edu-fact1 opened
+[  444.613964] edu-fact1 opened
+[  444.615618] edu-fact0 opened
+[  444.616387] edu-fact0 opened
+[  444.617207] edu-fact1 opened
+[  444.617939] edu-fact1 opened
+[  444.618158] edu-fact0 opened
+[  444.619150] edu-fact0 opened
+[  444.620190] edu-fact1 opened
+[  444.620963] edu-fact1 opened
+[  444.622922] edu-fact0 opened
+[  444.623924] edu-fact0 opened
+[  444.624346] edu-fact1 opened
+[  444.625311] edu-fact1 opened
+[  444.626158] edu-fact0 opened
+[  444.627110] edu-fact0 opened
+[  444.628018] edu-fact1 opened
+[  444.629086] edu-fact0 opened
+[  444.629910] edu-fact0 opened
+[  444.630021] edu-fact1 opened
+[  444.632977] edu-fact1 opened
+[  444.633408] edu-fact0 opened
+[  444.633741] edu-fact1 opened
+[  444.634371] edu-fact0 opened
+[  444.635591] edu-fact1 opened
+[  444.636390] edu-fact1 opened
+[  444.636479] edu-fact0 opened
+[  444.637888] edu-fact0 opened
+[  444.639658] edu-fact1 opened
+[  444.640681] edu-fact1 opened
+[  444.640900] edu-fact0 opened
+[  444.642426] edu-fact0 opened
+[  444.644161] edu-fact1 opened
+[  444.644458] edu-fact0 opened
+[  444.645050] edu-fact1 opened
+[  444.646800] edu-fact0 opened
+[  444.648242] edu-fact1 opened
+[  444.648903] edu-fact0 opened
+[  444.649316] edu-fact1 opened
+[  444.650092] edu-fact0 opened
+[  444.651652] edu-fact1 opened
+[  444.652087] edu-fact0 opened
+[  444.652985] edu-fact0 opened
+[  444.653247] edu-fact1 opened
+[  444.655588] edu-fact1 opened
+[  444.656072] edu-fact0 opened
+[  444.656659] edu-fact1 opened
+[  444.657751] edu-fact0 opened
+[  444.659831] edu-fact1 opened
+[  444.659840] edu-fact0 opened
+[  444.660623] edu-fact1 opened
+[  444.661365] edu-fact0 opened
+[  444.663928] edu-fact1 opened
+[  444.664100] edu-fact0 opened
+[  444.664713] edu-fact1 opened
+[  444.665445] edu-fact0 opened
+[  444.667266] edu-fact1 opened
+[  444.667524] edu-fact0 opened
+[  444.667989] edu-fact1 opened
+[  444.668861] edu-fact0 opened
+[  444.669944] edu-fact1 opened
+[  444.672321] edu-fact0 opened
+[  444.672348] edu-fact1 opened
+[  444.673071] edu-fact0 opened
+[  444.675331] edu-fact1 opened
+[  444.675578] edu-fact0 opened
+[  444.676061] edu-fact1 opened
+[  444.676404] edu-fact0 opened
+[  444.678288] edu-fact1 opened
+[  444.678561] edu-fact0 opened
+[  444.679024] edu-fact1 opened
+[  444.680675] edu-fact0 opened
+[  444.682754] edu-fact1 opened
+[  444.683209] edu-fact0 opened
+[  444.683864] edu-fact1 opened
+[  444.683941] edu-fact0 opened
+[  444.686700] edu-fact1 opened
+[  444.686980] edu-fact0 opened
+[  444.687669] edu-fact1 opened
+[  444.687751] edu-fact0 opened
+[  444.689762] edu-fact1 opened
+[  444.690461] edu-fact0 opened
+[  444.690522] edu-fact1 opened
+[  444.691929] edu-fact0 opened
+[  444.693753] edu-fact1 opened
+[  444.694481] edu-fact1 opened
+[  444.694707] edu-fact0 opened
+[  444.695586] edu-fact0 opened
+[  444.696765] edu-fact1 opened
+[  444.697961] edu-fact0 opened
+[  444.698677] edu-fact1 opened
+[  444.699313] edu-fact0 opened
+[  444.700798] edu-fact1 opened
+[  444.701656] edu-fact0 opened
+[  444.701737] edu-fact1 opened
+[  444.702817] edu-fact0 opened
+[  444.705500] edu-fact0 opened
+[  444.705683] edu-fact1 opened
+[  444.706666] edu-fact1 opened
+[  444.706854] edu-fact0 opened
+[  444.709057] edu-fact0 opened
+[  444.709058] edu-fact1 opened
+[  444.709547] edu-fact1 opened
+[  444.710500] edu-fact0 opened
+[  444.712681] edu-fact0 opened
+[  444.712903] edu-fact1 opened
+[  444.714375] edu-fact0 opened
+[  444.714889] edu-fact1 opened
+[  444.716485] edu-fact0 opened
+[  444.716905] edu-fact1 opened
+[  444.717450] edu-fact0 opened
+[  444.717788] edu-fact1 opened
+[  444.720657] edu-fact0 opened
+[  444.720743] edu-fact1 opened
+[  444.721477] edu-fact0 opened
+[  444.723826] edu-fact1 opened
+[  444.726555] edu-fact1 opened
+[  444.726966] edu-fact0 opened
+[  444.727329] edu-fact1 opened
+[  444.728656] edu-fact0 opened
+[  444.729215] edu-fact1 opened
+[  444.730018] edu-fact1 opened
+[  444.730662] edu-fact0 opened
+[  444.731068] edu-fact0 opened
+[  444.734396] edu-fact1 opened
+[  444.734572] edu-fact0 opened
+[  444.735202] edu-fact1 opened
+[  444.735478] edu-fact0 opened
+[  444.737957] edu-fact0 opened
+[  444.738015] edu-fact1 opened
+[  444.738724] edu-fact0 opened
+[  444.739337] edu-fact1 opened
+[  444.742523] edu-fact0 opened
+[  444.742875] edu-fact1 opened
+[  444.743619] edu-fact1 opened
+[  444.743673] edu-fact0 opened
+[  444.745927] edu-fact1 opened
+[  444.746040] edu-fact0 opened
+[  444.746750] edu-fact1 opened
+[  444.746980] edu-fact0 opened
+[  444.749670] edu-fact1 opened
+[  444.750433] edu-fact0 opened
+[  444.750438] edu-fact1 opened
+[  444.751142] edu-fact0 opened
+[  444.753480] edu-fact0 opened
+[  444.753546] edu-fact1 opened
+[  444.754232] edu-fact0 opened
+[  444.754502] edu-fact1 opened
+[  444.756854] edu-fact1 opened
+[  444.756963] edu-fact0 opened
+[  444.758661] edu-fact1 opened
+[  444.758809] edu-fact0 opened
+[  444.760903] edu-fact1 opened
+[  444.761142] edu-fact0 opened
+[  444.761779] edu-fact1 opened
+[  444.762773] edu-fact0 opened
+[  444.764977] edu-fact1 opened
+[  444.765769] edu-fact1 opened
+[  444.766444] edu-fact0 opened
+[  444.767887] edu-fact0 opened
+[  444.768678] edu-fact1 opened
+[  444.769587] edu-fact1 opened
+[  444.770432] edu-fact0 opened
+[  444.771130] edu-fact0 opened
+[  444.772441] edu-fact1 opened
+[  444.773254] edu-fact1 opened
+[  444.773393] edu-fact0 opened
+[  444.775106] edu-fact0 opened
+[  444.777028] edu-fact1 opened
+[  444.777945] edu-fact1 opened
+[  444.778288] edu-fact0 opened
+[  444.778698] edu-fact0 opened
+[  444.780853] edu-fact0 opened
+[  444.781429] edu-fact1 opened
+[  444.781941] edu-fact0 opened
+[  444.782923] edu-fact1 opened
+[  444.785454] edu-fact0 opened
+[  444.785511] edu-fact1 opened
+[  444.786258] edu-fact0 opened
+[  444.786540] edu-fact1 opened
+[  444.789304] edu-fact0 opened
+[  444.789525] edu-fact1 opened
+[  444.790751] edu-fact1 opened
+[  444.793387] edu-fact1 opened
+[  451.516761] edu-fact 0000:00:07.0: edu driver removed
+[  453.225334] edu-fact 0000:00:06.0: edu driver removed

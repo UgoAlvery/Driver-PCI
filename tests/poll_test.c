@@ -27,8 +27,8 @@ static int check_poll(int fd, short events, const char *label)
 		return -1;
 	}
 	if (!(pfd.revents & events)) {
-		fprintf(stderr, "poll: expected 0x%x, got 0x%x (%s)\n",
-			events, pfd.revents, label);
+		fprintf(stderr, "poll: expected 0x%x, got 0x%x (%s)\n", events,
+			pfd.revents, label);
 		return 0;
 	}
 	return 1;

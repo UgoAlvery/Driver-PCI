@@ -126,7 +126,7 @@ static ssize_t edu_read(struct file *file, char __user *user_buf, size_t count,
 		return -ERESTARTSYS;
 
 	reply_len = snprintf(kernel_buf, sizeof(kernel_buf), "%u\n",
-			      edu->last_result);
+			     edu->last_result);
 
 	mutex_unlock(&edu->io_lock);
 
@@ -242,7 +242,7 @@ static void edu_vma_close(struct vm_area_struct *vma)
 }
 
 static const struct vm_operations_struct edu_vm_ops = {
-	.open  = edu_vma_open,
+	.open = edu_vma_open,
 	.close = edu_vma_close,
 };
 
@@ -291,8 +291,8 @@ static long edu_ioctl(struct file *file, unsigned int ioctl_cmd,
 
 	switch (ioctl_cmd) {
 	case EDU_IOC_DMA_ROUNDTRIP:
-		return edu_dma_roundtrip(edu,
-					 (struct edu_dma_req __user *)ioctl_arg);
+		return edu_dma_roundtrip(
+			edu, (struct edu_dma_req __user *)ioctl_arg);
 	default:
 		return -ENOTTY;
 	}
